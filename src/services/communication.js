@@ -15,8 +15,9 @@ export class CommunicationService {
       const heading=version ? `${title} ${text(version,50)}` : title;
       const chunks=pages(content,1800).map((chunk,index,all)=>payload(i.guild,c,'Rotterdam Roleplay — Changelog',`**${heading}**\n\n${chunk}`,{footer:`Pagina ${index+1}/${all.length}`}));
       chunks.forEach(p=>{p.embeds[0].image={url:'attachment://rlrp-banner.png'};});
-      store.transaction(()=>{store.run('INSERT INTO changelogs VALUES (?,?,?,?,?)',key,i.guildId,i.user.id,JSON.stringify(chunks),Date.now()); store.queue(i.guildId,ch.id,{...chunks[0],brandAsset:'banner',components:pageButtons(`changelog:${key}`,0,chunks.length)});});
-      await logger.log(i.guild,'system','Changelog gepubliceerd',{actor:i.user.id,reason:heading});
+      const navigation=pageButtons(`changelog:${key}`,0,chunks.length);
+      store.transaction(()=>{store.run('INSERT INTO changelogs VALUES (?,?,?,?,?)',key,i.guildId,i.user.id,JSON.stringify(chunks),Date.now()); store.queue(i.guildId,ch.id,{...chunks[0],brandAsset:'banner',...(navigation.length ? {components:navigation} : {})});});
+      await logger.log(i.guild,'system','Changelog ingepland',{actor:i.user.id,reason:heading,result:'Toegevoegd aan de verzendwachtrij'});
       return i.editReply(payload(i.guild,c,'Changelog ingepland',`${chunks.length} pagina's.`));
     }
     const ch=await writable(i.guild,i.options.getChannel('kanaal')?.id || i.channelId);
@@ -41,6 +42,7 @@ export class CommunicationService {
     const list=JSON.parse(row.pages), n=Number(index);
     if (!Number.isInteger(n) || n<0 || n>=list.length) throw new UserError('Ongeldige pagina.');
     // Navigatie verandert uitsluitend de weergegeven pagina van onveranderlijke opgeslagen inhoud.
-    return i.editReply({...list[n],components:pageButtons(`changelog:${key}`,n,list.length)});
+    const navigation=pageButtons(`changelog:${key}`,n,list.length);
+    return i.editReply({...list[n],...(navigation.length ? {components:navigation} : {})});
   }
 }

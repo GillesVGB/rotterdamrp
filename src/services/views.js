@@ -4,10 +4,10 @@ import { pages, UserError } from '../utils/validation.js';
 import { payload } from '../utils/embeds.js';
 import { authorize } from '../security/permissions.js';
 import { policy } from '../commands/registry.js';
-export const pageButtons = (prefix, index, count) => [new ActionRowBuilder().addComponents(
+export const pageButtons = (prefix, index, count) => count > 1 ? [new ActionRowBuilder().addComponents(
   new ButtonBuilder().setCustomId(`${prefix}:${Math.max(0,index-1)}`).setLabel('◀ Vorige').setStyle(ButtonStyle.Secondary).setDisabled(index === 0),
   new ButtonBuilder().setCustomId(`${prefix}:${Math.min(count-1,index+1)}`).setLabel('▶ Volgende').setStyle(ButtonStyle.Secondary).setDisabled(index === count-1)
-).toJSON()];
+).toJSON()] : [];
 export async function showView(ctx, i, title, description, commandKey = null) {
   const key = randomUUID(), chunks = pages(description);
   ctx.store.run('INSERT INTO views VALUES (?,?,?,?,?,?,?)', key, i.guildId, i.user.id, commandKey, title, JSON.stringify(chunks), Date.now()+900000);

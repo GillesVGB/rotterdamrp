@@ -2,6 +2,15 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { fixture,IDs } from './fixture.js';
 import { builders } from '../src/commands/registry.js';
+import { pageButtons } from '../src/services/views.js';
+
+test('navigatieknoppen ontbreken voor één pagina en hebben per pagina unieke IDs',()=>{
+  assert.deepEqual(pageButtons('changelog:test',0,1),[]);
+  for(const index of [0,1,2]) {
+    const ids=pageButtons('changelog:test',index,3).flatMap(row=>row.components.map(button=>button.custom_id));
+    assert.equal(new Set(ids).size,ids.length);
+  }
+});
 
 test('changelog vereist alleen naam en inhoud; versie optioneel en categorie verwijderd',()=>{
   const command=builders().map(b=>b.toJSON()).find(c=>c.name==='changelog');
@@ -16,7 +25,10 @@ for(const version of [null,'1.4.2']) test(`changelog publiceert echte opgeslagen
     assert.ok(!data.embeds[0].description.includes('null'));
     assert.equal(f.store.get('SELECT channel_id FROM outbox').channel_id,IDs.channel);
     await f.ctx.outbox.flush();assert.equal(f.records.filter(r=>r.send).length,1);
-    assert.equal(f.records.find(r=>r.send).send.files[0].name,'rlrp-banner.png');
+    const sent=f.records.find(r=>r.send).send;
+    assert.equal(sent.files[0].name,'rlrp-banner.png');
+    assert.deepEqual(sent.components || [],[]);
+    assert.equal(f.records.find(record=>record.log)?.log[2],'Changelog ingepland');
   }finally {f.store.close();}
 });
 test('changelogknoppen halen de juiste onveranderlijke pagina uit SQLite',async()=>{
@@ -24,6 +36,9 @@ test('changelogknoppen halen de juiste onveranderlijke pagina uit SQLite',async(
     await f.ctx.communication.execute(f.interaction('changelog',{naam:'Grote update',inhoud:'Nieuwe voertuigen en bugfixes.\n'.repeat(150)}),f.actor,f.c);
     const row=f.store.get('SELECT * FROM changelogs'),list=JSON.parse(row.pages);
     assert.ok(list.length>1);
+    const sent=JSON.parse(f.store.get('SELECT payload FROM outbox').payload);
+    const ids=sent.components.flatMap(component=>component.components.map(button=>button.custom_id));
+    assert.equal(new Set(ids).size,ids.length);
     await f.ctx.communication.button(f.interaction('changelog',{},null,IDs.target),row.id,'1');
     const result=f.records.filter(r=>r.reply).at(-1).reply;
     assert.deepEqual(result.embeds,list[1].embeds);
