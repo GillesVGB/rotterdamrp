@@ -28,7 +28,7 @@ De offline tests controleren echte SQLite-opslag en gesimuleerde Discord-grenzen
 | `/lock` en `/unlock` | Eerdere allow/deny/null terug; rol-overwrites gedocumenteerd |
 | `/purge` | Alleen jongere berichten verwijderd, aantallen kloppen |
 | `/say` en `/embed` | Doelkanaal gebruikt, onveilige massamentions geweigerd |
-| `/changelog` met alleen naam + inhoud | Altijd in `1226509287459655704`, banner, juiste paginanummers, knoppen en onveranderlijke inhoud |
+| `/changelog` met alleen naam + inhoud | Altijd in `1226509287459655704`, juiste paginanummers, knoppen en onveranderlijke inhoud; zonder bannerafbeelding |
 | `/changelog` met versie | Optionele versie getoond zonder extra verplichte parameters |
 | Giveaway deelnemen | Unieke entry, dubbelklik levert geen dubbele deelname |
 | Giveaway onvoldoende deelnemers | Nul winnaars, geen verzonnen winnaar |

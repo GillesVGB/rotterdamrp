@@ -1,6 +1,4 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { AttachmentBuilder } from 'discord.js';
-import { fileURLToPath } from 'node:url';
 import { payload, NO_MENTIONS } from '../utils/embeds.js';
 import { truncate } from '../utils/validation.js';
 
@@ -46,8 +44,6 @@ export class Outbox {
           if(event) data=this.ctx.events.data(guild,store.config(guild.id),event);
         }
         const reaction = data.reaction; delete data.reaction;
-        if(data.brandAsset==='banner') {data.files=[new AttachmentBuilder(fileURLToPath(new URL('../../assets/rlrp-banner.png',import.meta.url)),{name:'rlrp-banner.png'})];}
-        delete data.brandAsset;
         const messages = item.attempts > 0 ? await channel.messages.fetch({ limit: 100 }) : null;
         let message = messages?.find(m => m.author.id === client.user.id && (String(m.nonce) === nonce || m.embeds.some(e => e.footer?.text?.includes(reference)) || m.content.endsWith(`\n-# ${reference}`)));
         if (!message) {

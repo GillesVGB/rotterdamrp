@@ -26,7 +26,8 @@ for(const version of [null,'1.4.2']) test(`changelog publiceert echte opgeslagen
     assert.equal(f.store.get('SELECT channel_id FROM outbox').channel_id,IDs.channel);
     await f.ctx.outbox.flush();assert.equal(f.records.filter(r=>r.send).length,1);
     const sent=f.records.find(r=>r.send).send;
-    assert.equal(sent.files[0].name,'rlrp-banner.png');
+    assert.equal(sent.files,undefined);
+    assert.equal(sent.embeds[0].image,undefined);
     assert.deepEqual(sent.components || [],[]);
     assert.equal(f.records.find(record=>record.log)?.log[2],'Changelog ingepland');
   }finally {f.store.close();}

@@ -1,5 +1,4 @@
 import { randomUUID } from 'node:crypto';
-import { PermissionFlagsBits as P } from 'discord.js';
 import { embed, payload, NO_MENTIONS } from '../utils/embeds.js';
 import { noMassMentions, text, url, pages, UserError } from '../utils/validation.js';
 import { writable } from '../security/permissions.js';
@@ -10,13 +9,11 @@ export class CommunicationService {
     const {store,logger}=this.ctx;
     if (i.commandName==='changelog') {
       const ch=await writable(i.guild,c.channels.changelog), key=randomUUID();
-      if(!ch.permissionsFor(await i.guild.members.fetchMe()).has(P.AttachFiles)) throw new UserError('AttachFiles ontbreekt voor de changelogbanner.');
       const title=text(i.options.getString('naam'),100),version=i.options.getString('versie'),content=noMassMentions(text(i.options.getString('inhoud'),6000));
       const heading=version ? `${title} ${text(version,50)}` : title;
       const chunks=pages(content,1800).map((chunk,index,all)=>payload(i.guild,c,'Rotterdam Roleplay — Changelog',`**${heading}**\n\n${chunk}`,{footer:`Pagina ${index+1}/${all.length}`}));
-      chunks.forEach(p=>{p.embeds[0].image={url:'attachment://rlrp-banner.png'};});
       const navigation=pageButtons(`changelog:${key}`,0,chunks.length);
-      store.transaction(()=>{store.run('INSERT INTO changelogs VALUES (?,?,?,?,?)',key,i.guildId,i.user.id,JSON.stringify(chunks),Date.now()); store.queue(i.guildId,ch.id,{...chunks[0],brandAsset:'banner',...(navigation.length ? {components:navigation} : {})});});
+      store.transaction(()=>{store.run('INSERT INTO changelogs VALUES (?,?,?,?,?)',key,i.guildId,i.user.id,JSON.stringify(chunks),Date.now()); store.queue(i.guildId,ch.id,{...chunks[0],...(navigation.length ? {components:navigation} : {})});});
       await logger.log(i.guild,'system','Changelog ingepland',{actor:i.user.id,reason:heading,result:'Toegevoegd aan de verzendwachtrij'});
       return i.editReply(payload(i.guild,c,'Changelog ingepland',`${chunks.length} pagina's.`));
     }

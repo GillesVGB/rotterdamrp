@@ -142,7 +142,7 @@ Evenementen worden als externe Discord Scheduled Events aangemaakt, met daarnaas
 
 ## Huisstijl
 
-`assets/rlrp-logo.png` en `assets/rlrp-banner.png` volgen jouw referenties: blauwe Rotterdamse skyline, metallic witte R, witte 3D-lettering en cyaan Roleplay-script. Upload het logo als servericon/botavatar en de banner waar Discord dit ondersteunt. Changelogs voegen de banner als attachment toe. De embeds gebruiken #1675FF en waar aanwezig het servericon. De prompts staan in [assets/GENERATIE.md](assets/GENERATIE.md).
+`assets/rlrp-logo.png` en `assets/rlrp-banner.png` volgen jouw referenties: blauwe Rotterdamse skyline, metallic witte R, witte 3D-lettering en cyaan Roleplay-script. Upload het logo als servericon/botavatar en de banner waar Discord dit ondersteunt. Changelogberichten gebruiken een compacte embed zonder bannerafbeelding. De embeds gebruiken #1675FF en waar aanwezig het servericon. De prompts staan in [assets/GENERATIE.md](assets/GENERATIE.md).
 
 De bot leest bij opstart en iedere vijf minuten de applicationemoji `rlogo`, `upvote` en `downvote`. De applicationcache krijgt voorrang op een gelijknamig guildemoji. Aannemen/promotie gebruikt `:upvote:`, demotie/ontslag `:downvote:`. Staffaankondigingen bevatten geen foto's en noemen de uitvoerder met een Discord-mention; de `rlogo`-emoji wordt als reactie onder het bericht geplaatst. Interne retry-ID's worden via Discords nonce afgehandeld en staan niet in de footer. Ontbrekende upvote/downvote-emoji tonen Unicode-fallbacks. Volgens de [officiële Emoji API](https://docs.discord.com/developers/resources/emoji#application-owned-emoji) vereisen applicationemoji geen Use External Emojis; die permissie blijft nuttig voor guildemoji.
 
