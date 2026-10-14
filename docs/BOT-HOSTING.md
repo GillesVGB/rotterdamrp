@@ -39,7 +39,7 @@ Vul `DISCORD_TOKEN` met een nieuwe token en markeer die als secret in het paneel
 5. Open Discord in die server en typ `/help`. Dit toont alle commands, parameters en benodigde rechten.
 6. Leden met Beheerrol `1226509285924540473`, gebruikers met Administrator en de servereigenaar mogen alle commands gebruiken. Gewone moderatoren gebruiken hun Discord-permissies voor bans, kicks, waarschuwingen, timeouts en overige moderatie.
 7. Gebruik `/aannemen` en kies bij `functie` de bestaande Discord-rol. Voor `/staffupdate` kies je `nieuwe_rank`; de nieuwe rank wordt echt gegeven en de oude staffrank wordt verwijderd. `/ontslag` verwijdert altijd de staffrollen. Staffgroepen en ranks vooraf invoeren is niet nodig.
-8. Aannemen/staffupdate/ontslag gaan altijd naar `1560050091245699245`, changelogs naar `1226509287459655704` en APV-publicaties naar `1226509286587498599`. `/changelog` vraagt alleen `naam` en `inhoud`; `versie` is optioneel. Extra log-/modulekanalen zijn optioneel via het configuratiebestand en `config:export`/`config:import`; zie de README.
+8. Aannemen/staffupdate/ontslag gaan altijd naar `1560050091245699245`, changelogs naar `1226509287459655704`, APV-publicaties naar `1226509286587498599` en regels naar `1226509286587498597`. `/changelog` vraagt alleen `naam` en `inhoud`; `versie` is optioneel. Extra log-/modulekanalen zijn optioneel via het configuratiebestand en `config:export`/`config:import`; zie de README.
 
 De Beheerrol staat standaard al ingesteld. `MANAGEMENT_ROLE_IDS` is alleen nodig als je andere rollen wilt gebruiken. Een bestaande `BOT_OWNER_ROLE_IDS`-waarde wordt ook ondersteund. Plaats de botrol boven de leden en rankrollen die hij moet beheren; Beheer kan die Discord-hiërarchie niet omzeilen.
 

@@ -16,9 +16,9 @@ test('extra beheerrollen blijven geldig en @everyone wordt geweigerd',()=>{
 });
 test('vaste RLRP-publicatiekanalen gelden ook voor oude databaseconfig en na import',()=>{
   const s=new Store();try {
-    const old=defaults();for(const key of ['hiring','dismissal','staffUpdates','changelog']) old.channels[key]=IDs.channel;
+    const old=defaults();for(const key of ['hiring','dismissal','staffUpdates','changelog','apv','rules']) old.channels[key]=IDs.channel;
     s.init(RLRP_GUILD_ID,old);
-    const expected={hiring:'1560050091245699245',dismissal:'1560050091245699245',staffUpdates:'1560050091245699245',changelog:'1226509287459655704'};
+    const expected={hiring:'1560050091245699245',dismissal:'1560050091245699245',staffUpdates:'1560050091245699245',changelog:'1226509287459655704',apv:'1226509286587498599',rules:'1226509286587498597'};
     for(const [key,value] of Object.entries(expected)) assert.equal(s.config(RLRP_GUILD_ID).channels[key],value);
     s.saveConfig(RLRP_GUILD_ID,old,1);
     const saved=JSON.parse(s.get('SELECT body FROM config').body);

@@ -7,7 +7,7 @@ export async function installationHealth(ctx,guild) {
   const integrity=ctx.store.get('PRAGMA quick_check').quick_check;
   let ok=integrity==='ok' && missing.length===0;
   const lines=[`Server: ${guild.name} (${guild.id})`,`Database: ${integrity}`,`Botpermissies: ${missing.length ? `ontbreekt ${missing.join(', ')}` : 'ok'}`];
-  for(const key of ['hiring','dismissal','staffUpdates','changelog','apv']) {
+  for(const key of ['hiring','dismissal','staffUpdates','changelog','apv','rules']) {
     try {await writable(guild,c.channels[key]);lines.push(`${key}: ok (${c.channels[key]})`);}
     catch(e) {ok=false;lines.push(`${key}: ${e.message}`);}
   }

@@ -35,6 +35,7 @@ De offline tests controleren echte SQLite-opslag en gesimuleerde Discord-grenzen
 | Giveaway herstart | Nieuwe ronde van een bestaande giveaway; eerdere bewijzen blijven staan; automatische eindtijd blijft werken |
 | Giveawaybewijs | Verifier klopt tegen oorspronkelijke commitment en snapshot |
 | APV publiceren/accepteren | Publicatie in `1226509286587498599`; versie en acceptatieknop correct |
+| Regels publiceren/accepteren | Publicatie in `1226509286587498597`; versie en acceptatieknop correct |
 | Regels publiceren/accepteren | Versienummer en juiste document-ID; nieuwe versie wist oude acceptatie niet |
 | Evenement | Discord Scheduled Event, capaciteit, afmelden, reminder, start en sluiten |
 | FiveM beschikbaar/onbereikbaar | Juiste echte aantallen of onbekend; geen IP/license-informatie |

@@ -20,6 +20,7 @@ De token die in de chat is gedeeld, moet worden gereset in het [Discord Develope
 | Aannemen / staffupdate / ontslag | Altijd kanaal `1560050091245699245` |
 | Changelog | Altijd kanaal `1226509287459655704` |
 | APV | Altijd kanaal `1226509286587498599` |
+| Regels | Altijd kanaal `1226509286587498597` |
 
 Bij opstart registreert de bot automatisch alle guildcommands. Controleer de console op een geslaagde registratie en typ daarna `/help` in Discord. Dat toont alle commands, subcommands, parameters en benodigde rechten, met categorieën en paginaknoppen. De commandantwoorden met interne gegevens zijn alleen zichtbaar voor de uitvoerder.
 

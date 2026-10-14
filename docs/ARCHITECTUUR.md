@@ -22,7 +22,7 @@ Staffcommands gebruiken native Discord-rolopties: `functie` voor aannemen en `ni
 
 Staffupdate geeft de nieuwe rol en verwijdert de oude opgeslagen/herkende staffrankrollen. Ontslag verwijdert altijd de opgeslagen/herkende staffrollen en behoudt andere communityrollen. Oude en nieuwe rol-ID's worden naast ranknamen in de historie bewaard.
 
-RLRP heeft vaste publicatiebestemmingen: aannemen, ontslag en staffupdate in `1560050091245699245`, changelog in `1226509287459655704` en APV in `1226509286587498599`. De configuratielaag past deze waarden ook op bestaande databases toe. Configuratie-import kan deze bestemmingen niet vervangen. Changelog vraagt alleen `naam` en `inhoud`; `versie` is optioneel. Staffembeds tonen geen foto's. De outbox gebruikt een Discord-nonce als retryreferentie, niet een zichtbare UUID in de footer.
+RLRP heeft vaste publicatiebestemmingen: aannemen, ontslag en staffupdate in `1560050091245699245`, changelog in `1226509287459655704`, APV in `1226509286587498599` en regels in `1226509286587498597`. De configuratielaag past deze waarden ook op bestaande databases toe. Configuratie-import kan deze bestemmingen niet vervangen. Changelog vraagt alleen `naam` en `inhoud`; `versie` is optioneel. Staffembeds tonen geen foto's. De outbox gebruikt een Discord-nonce als retryreferentie, niet een zichtbare UUID in de footer.
 
 ## Opslag en herstel
 

@@ -5,7 +5,7 @@ import { id, integer, UserError } from './utils/validation.js';
 export const RLRP_GUILD_ID = '1226509285924540467';
 export const RLRP_MANAGEMENT_ROLE_ID = '1226509285924540473';
 export function fixedChannels(guild, channels) {
-  return guild === RLRP_GUILD_ID ? {...channels,hiring:'1560050091245699245',dismissal:'1560050091245699245',staffUpdates:'1560050091245699245',changelog:'1226509287459655704',apv:'1226509286587498599'} : channels;
+  return guild === RLRP_GUILD_ID ? {...channels,hiring:'1560050091245699245',dismissal:'1560050091245699245',staffUpdates:'1560050091245699245',changelog:'1226509287459655704',apv:'1226509286587498599',rules:'1226509286587498597'} : channels;
 }
 
 export function environment(env = process.env, requireToken = true) {
