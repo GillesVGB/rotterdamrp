@@ -80,8 +80,7 @@ export class StaffService {
       const vote=brandEmoji(i.guild,c,direction),voteText=vote?.toString() || (direction==='upvote' ? '⬆️' : '⬇️');
       const description = name === 'aannemen' ? `<@${user.id}>\n**Aangenomen ➜ <@&${rank.roleId}>**\n\nWelkom ${user.username} ❤️` : name === 'ontslag' ? `**Ontslagen ➜ <@${user.id}>**\nReden: ${reason}` : `**${i.options.getString('type')} ➜ <@&${rank.roleId}>**\n<@${user.id}> • ${oldRank?.name || '—'} ➜ ${rank.name}\nReden: ${reason}`;
       const e = embed(i.guild,c,`${voteText} | ${name==='aannemen' ? target.displayName : name==='ontslag' ? 'Staffontslag' : direction==='upvote' ? 'Staffpromotie' : 'Staffdemotie'}`,description,{user});
-      if(vote) e.setThumbnail(vote.imageURL({extension:'webp',size:128}));
-      else if(direction==='upvote') e.setThumbnail('https://cdn.discordapp.com/emojis/1539529905417490462.webp?size=80');
+      e.setThumbnail('https://cdn.discordapp.com/emojis/1560047457361072198.webp?size=80');
       store.queue(i.guildId,c.channels[channelKey],{embeds:[e.toJSON()],reaction:logo(i.guild,c) || null});
     });
     await logger.log(i.guild,'staff',name,{actor:i.user.id,target:user.id,reason,result:`${oldRank?.name || existing?.rank || '—'} ➜ ${rank?.name || 'ontslagen'}`});

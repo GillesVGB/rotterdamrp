@@ -12,7 +12,7 @@ De offline tests controleren echte SQLite-opslag en gesimuleerde Discord-grenzen
 | Gewone moderator zonder ingestelde staffgroep | Moderatie toegankelijk met de vereiste Discord-permissie; zonder die permissie en Beheerrol server-side afgewezen |
 | Gewoon lid bij staff-/communicatiebeheer | Server-side afgewezen, ook als het slash command zichtbaar is |
 | Beheerrol weghalen bij lid zonder Administrator | Volgende beheeractie weigert toegang |
-| `:rlogo:` | Echte bereikbare serveremoji in embed en reactie op aanneming |
+| `:rlogo:` | Geen logo-emoji in embedtekst; gelinkte emoji-afbeelding als thumbnail en echte reactie bij aannemen, promotie, demotie en ontslag |
 | `/aannemen` met lager testlid | Native Discord-rolkiezer, echte rol toegewezen zonder vooraf ingestelde ranks, rol-ID en historie opgeslagen; DM-fout apart gelogd |
 | `/staffupdate` | Native rolkiezer, nieuwe rankrol echt toegevoegd, oude staffrankrol echt verwijderd, andere communityrollen behouden |
 | Promotie/demotie met omgekeerde geconfigureerde levels | Richting volgt altijd de echte Discord-rolhiërarchie |
