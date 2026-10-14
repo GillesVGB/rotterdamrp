@@ -3,7 +3,7 @@ import { mkdirSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
-import { validateConfig } from '../config.js';
+import { validateConfig,fixedChannels } from '../config.js';
 import { UserError } from '../utils/validation.js';
 
 export class Store {
@@ -31,11 +31,12 @@ export class Store {
   config(guild) {
     const row = this.get('SELECT * FROM config WHERE guild_id=?', guild);
     if (!row) throw new Error('Guildconfiguratie ontbreekt.');
-    return { ...validateConfig(JSON.parse(row.body)), revision: row.revision };
+    const c=validateConfig(JSON.parse(row.body));
+    return { ...c, channels:fixedChannels(guild,c.channels), revision: row.revision };
   }
   saveConfig(guild, config, revision) {
-    const body = JSON.stringify(validateConfig(config));
-    if (!this.run('UPDATE config SET body=?,revision=revision+1 WHERE guild_id=? AND revision=?', body, guild, revision).changes) throw new UserError('Configuratie is intussen gewijzigd. Open /setup opnieuw.');
+    const c=validateConfig(config),body = JSON.stringify({...c,channels:fixedChannels(guild,c.channels)});
+    if (!this.run('UPDATE config SET body=?,revision=revision+1 WHERE guild_id=? AND revision=?', body, guild, revision).changes) throw new UserError('Configuratie is intussen gewijzigd. Exporteer de nieuwste versie en probeer opnieuw.');
   }
   begin(guild, actor, target, kind, details = {}) {
     const action = randomUUID();

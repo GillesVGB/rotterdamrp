@@ -7,7 +7,7 @@ Wants=network-online.target
 Type=simple
 User=rlrp
 WorkingDirectory=/opt/rlrp-main-bot
-ExecStart=/usr/bin/node --env-file=/opt/rlrp-main-bot/.env /opt/rlrp-main-bot/src/index.js
+ExecStart=/usr/bin/node /opt/rlrp-main-bot/index.js
 Restart=on-failure
 RestartSec=5
 TimeoutStopSec=20

@@ -11,11 +11,12 @@ export class CommunicationService {
     if (i.commandName==='changelog') {
       const ch=await writable(i.guild,c.channels.changelog), key=randomUUID();
       if(!ch.permissionsFor(await i.guild.members.fetchMe()).has(P.AttachFiles)) throw new UserError('AttachFiles ontbreekt voor de changelogbanner.');
-      const title=text(i.options.getString('naam'),100),version=text(i.options.getString('versie'),50),category=text(i.options.getString('categorie'),100),content=noMassMentions(text(i.options.getString('inhoud'),6000));
-      const chunks=pages(content,1800).map((chunk,index,all)=>payload(i.guild,c,'Rotterdam Roleplay — Changelog',`**${title} ${version}**\n**${category}**\n\n${chunk}`,{footer:`Pagina ${index+1}/${all.length}`}));
+      const title=text(i.options.getString('naam'),100),version=i.options.getString('versie'),content=noMassMentions(text(i.options.getString('inhoud'),6000));
+      const heading=version ? `${title} ${text(version,50)}` : title;
+      const chunks=pages(content,1800).map((chunk,index,all)=>payload(i.guild,c,'Rotterdam Roleplay — Changelog',`**${heading}**\n\n${chunk}`,{footer:`Pagina ${index+1}/${all.length}`}));
       chunks.forEach(p=>{p.embeds[0].image={url:'attachment://rlrp-banner.png'};});
       store.transaction(()=>{store.run('INSERT INTO changelogs VALUES (?,?,?,?,?)',key,i.guildId,i.user.id,JSON.stringify(chunks),Date.now()); store.queue(i.guildId,ch.id,{...chunks[0],brandAsset:'banner',components:pageButtons(`changelog:${key}`,0,chunks.length)});});
-      await logger.log(i.guild,'system','Changelog gepubliceerd',{actor:i.user.id,reason:`${title} ${version}`});
+      await logger.log(i.guild,'system','Changelog gepubliceerd',{actor:i.user.id,reason:heading});
       return i.editReply(payload(i.guild,c,'Changelog ingepland',`${chunks.length} pagina's.`));
     }
     const ch=await writable(i.guild,i.options.getChannel('kanaal')?.id || i.channelId);

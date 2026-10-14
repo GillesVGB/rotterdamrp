@@ -2,17 +2,26 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { id, integer, UserError } from './utils/validation.js';
 
+export const RLRP_GUILD_ID = '1226509285924540467';
+export const RLRP_MANAGEMENT_ROLE_ID = '1226509285924540473';
+export function fixedChannels(guild, channels) {
+  return guild === RLRP_GUILD_ID ? {...channels,hiring:'1560050091245699245',dismissal:'1560050091245699245',staffUpdates:'1560050091245699245',changelog:'1226509287459655704'} : channels;
+}
+
 export function environment(env = process.env, requireToken = true) {
   const cfg = {
     token: env.DISCORD_TOKEN, clientId: id(env.DISCORD_CLIENT_ID), guildId: id(env.DISCORD_GUILD_ID),
     owners: (env.BOT_OWNER_IDS || '').split(',').filter(Boolean).map(x => id(x.trim())),
     ownerRoles: (env.BOT_OWNER_ROLE_IDS || '').split(',').filter(Boolean).map(x => id(x.trim())),
+    managementRoles: (env.MANAGEMENT_ROLE_IDS || '').split(',').filter(Boolean).map(x => id(x.trim())),
+    registerOnStart: env.REGISTER_COMMANDS_ON_START === undefined || env.REGISTER_COMMANDS_ON_START === '' ? true : env.REGISTER_COMMANDS_ON_START === 'true',
     database: resolve(env.DATABASE_PATH || './data/rlrp.sqlite'), configPath: resolve(env.CONFIG_PATH || './config/default.json'),
     fivemUrl: env.FIVEM_BASE_URL || null, joinUrl: env.FIVEM_JOIN_URL || null
   };
   if (requireToken && !cfg.token) throw new Error('DISCORD_TOKEN ontbreekt.');
-  if (!cfg.owners.length && !cfg.ownerRoles.length) throw new Error('BOT_OWNER_IDS of BOT_OWNER_ROLE_IDS moet expliciete beheerders bevatten.');
-  if (cfg.ownerRoles.includes(cfg.guildId)) throw new Error('@everyone mag geen ownerrol zijn.');
+  if (env.REGISTER_COMMANDS_ON_START && !['true','false'].includes(env.REGISTER_COMMANDS_ON_START)) throw new Error('REGISTER_COMMANDS_ON_START moet true of false zijn.');
+  if ([...cfg.ownerRoles,...cfg.managementRoles].includes(cfg.guildId)) throw new Error('@everyone mag geen beheerrol zijn.');
+  if (cfg.guildId === RLRP_GUILD_ID) cfg.managementRoles = [...new Set([...cfg.managementRoles,RLRP_MANAGEMENT_ROLE_ID])];
   if (cfg.fivemUrl) {
     const u = new URL(cfg.fivemUrl);
     if (!['http:', 'https:'].includes(u.protocol) || u.username || u.password || u.search || u.hash) throw new Error('FiveM: ongeldige basis-URL.');
@@ -32,7 +41,11 @@ const ids = value => {
 };
 const bool = x => { if (typeof x !== 'boolean') throw new UserError('Boolean vereist.'); };
 export function validateConfig(c) {
-  keys(c, ['brand','roles','channels','staff','moderation','logging','fivem','permissions','security']);
+  c=structuredClone(c);
+  // Oude bestanden blijven importeerbaar; verwijder de vervallen modules.
+  delete c.security; delete c.permissions; delete c.channels?.security;
+  if(c.staff) delete c.staff.removeRolesOnDismissal;
+  keys(c, ['brand','roles','channels','staff','moderation','logging','fivem']);
   keys(c.brand, ['name','color','errorColor','logoEmojiId','upvoteEmojiId','downvoteEmojiId']);
   if(!Object.hasOwn(c.brand,'downvoteEmojiId')) c.brand.downvoteEmojiId=null;
   if (!c.brand.name || c.brand.name.length > 80) throw new UserError('Huisstijlnaam: 1–80 tekens.');
@@ -47,31 +60,11 @@ export function validateConfig(c) {
     if (typeof r.name !== 'string' || !/^[\p{L}\p{N} _-]{1,50}$/u.test(r.name) || names.has(r.name.toLowerCase()) || roleIds.has(r.roleId)) throw new UserError('Ranks hebben unieke namen en rollen nodig.');
     names.add(r.name.toLowerCase()); roleIds.add(r.roleId);
   }
-  keys(c.channels, ['hiring','dismissal','staffUpdates','changelog','giveaway','events','rules','fivem','staffWarnings','moderation','staff','security','messages','roles','channelChanges','members','system']);
+  keys(c.channels, ['hiring','dismissal','staffUpdates','changelog','giveaway','events','rules','fivem','staffWarnings','moderation','staff','messages','roles','channelChanges','members','system']);
   Object.values(c.channels).filter(x => x !== null).forEach(id);
-  keys(c.staff, ['dm','removeRolesOnDismissal']); Object.values(c.staff).forEach(bool);
+  keys(c.staff, ['dm']); Object.values(c.staff).forEach(bool);
   keys(c.moderation, ['dm','temporaryBans']); Object.values(c.moderation).forEach(bool);
   keys(c.logging, ['messageContent','retentionDays']); bool(c.logging.messageContent); integer(c.logging.retentionDays, 7, 3650);
   keys(c.fivem, ['showPlayers','pollSeconds']); bool(c.fivem.showPlayers); integer(c.fivem.pollSeconds, 30, 3600);
-  keys(c.permissions, Object.keys(c.permissions));
-  for (const [name, p] of Object.entries(c.permissions)) {
-    if (!/^[a-z][a-z0-9_-]{1,31}(\.[a-z][a-z0-9_-]{1,31})?$/.test(name) || name.startsWith('setup') || name.startsWith('antinuke') || name.startsWith('systeem')) throw new UserError('Ongeldige of owner-only commandoverride.');
-    ids(p);
-  }
-  keys(c.security, ['action','allowUsers','allowBots','rules','spam','mentions','raid','webhookMessages']);
-  if (!['strip','timeout','alert'].includes(c.security.action)) throw new UserError('Security action: strip, timeout of alert.');
-  ids(c.security.allowUsers); ids(c.security.allowBots);
-  const rules = ['channelCreate','channelDelete','channelUpdate','roleCreate','roleDelete','roleUpdate','webhook','ban','kick','guildUpdate'];
-  keys(c.security.rules, rules);
-  for (const rule of rules) {
-    keys(c.security.rules[rule], ['limit','windowSeconds']); integer(c.security.rules[rule].limit, 1, 50); integer(c.security.rules[rule].windowSeconds, 5, 300);
-  }
-  for (const key of ['spam','mentions','raid','webhookMessages']) {
-    const r = c.security[key];
-    keys(r, key === 'mentions' ? ['limit','timeoutSeconds'] : key === 'webhookMessages' ? ['limit','windowSeconds'] : ['limit','windowSeconds','timeoutSeconds']);
-    integer(r.limit, 2, 100);
-    if ('windowSeconds' in r) integer(r.windowSeconds, 3, 300);
-    if ('timeoutSeconds' in r) integer(r.timeoutSeconds, 60, 86400);
-  }
   return structuredClone(c);
 }

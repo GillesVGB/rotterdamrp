@@ -1,6 +1,6 @@
 import { PermissionFlagsBits as P } from 'discord.js';
 import { randomUUID } from 'node:crypto';
-import { botPermissions, hierarchy } from '../security/permissions.js';
+import { botPermissions, hierarchy,isManagement } from '../security/permissions.js';
 import { UserError, id, duration, text } from '../utils/validation.js';
 import { payload } from '../utils/embeds.js';
 import { mutate, dm } from './logging.js';
@@ -18,7 +18,7 @@ export class ModerationService {
     }
     if (name === 'purge') {
       const channel = i.channel, me = await botPermissions(i.guild,[P.ManageMessages]);
-      if (!channel?.bulkDelete || !channel.permissionsFor(me).has([P.ViewChannel,P.ManageMessages,P.ReadMessageHistory]) || !channel.permissionsFor(actor).has(P.ManageMessages)) throw new UserError('Je kunt hier geen berichten verwijderen.');
+      if (!channel?.bulkDelete || !channel.permissionsFor(me).has([P.ViewChannel,P.ManageMessages,P.ReadMessageHistory]) || (!isManagement(actor,c,this.ctx.env) && !channel.permissionsFor(actor).has(P.ManageMessages))) throw new UserError('Je kunt hier geen berichten verwijderen.');
       const count = i.options.getInteger('aantal');
       const messages = await channel.messages.fetch({limit:count});
       const recent = messages.filter(m=>m.createdTimestamp > Date.now()-14*86400000+60000);
@@ -76,7 +76,7 @@ export class ModerationService {
   }
   async lock(i,actor,c,name) {
     const { store, logger } = this.ctx, ch = i.channel, me = await botPermissions(i.guild,[P.ManageChannels,P.ManageRoles]);
-    if (!ch?.permissionOverwrites || ch.isThread() || !ch.permissionsFor(me).has([P.ManageChannels,P.ManageRoles]) || !ch.permissionsFor(actor).has(P.ManageChannels)) throw new UserError('Dit kanaal ondersteunt deze actie niet of kanaalrechten ontbreken.');
+    if (!ch?.permissionOverwrites || ch.isThread() || !ch.permissionsFor(me).has([P.ManageChannels,P.ManageRoles]) || (!isManagement(actor,c,this.ctx.env) && !ch.permissionsFor(actor).has(P.ManageChannels))) throw new UserError('Dit kanaal ondersteunt deze actie niet of kanaalrechten ontbreken.');
     const existing = store.get('SELECT * FROM locks WHERE guild_id=? AND channel_id=?',i.guildId,ch.id);
     const flags = ['SendMessages','SendMessagesInThreads','CreatePublicThreads','CreatePrivateThreads'];
     if (name === 'lock') {

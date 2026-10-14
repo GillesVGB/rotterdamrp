@@ -8,11 +8,11 @@ import { payload } from '../utils/embeds.js';
 import { viewButton,showView } from '../services/views.js';
 const staffNames=new Set(staffCommands.map(x=>x.name)), modNames=new Set(moderationCommands.map(x=>x.name));
 export function serviceFor(name) {
+  if(name==='help') return 'help';
   if(staffNames.has(name)) return 'staff'; if(modNames.has(name)) return 'moderation';
   if(['giveaway','giveawaybeheer'].includes(name)) return 'giveaways';
   if(['apv','regels'].includes(name)) return 'documents';
   if(name==='evenement') return 'events'; if(name==='fivem') return 'fivem';
-  if(name==='setup') return 'setup'; if(name==='antinuke') return 'security';
   if(['say','embed','changelog'].includes(name)) return 'communication'; if(name==='systeem') return 'system';
   throw new Error(`Geen handler voor ${name}`);
 }
@@ -40,9 +40,6 @@ export async function interaction(ctx,i) {
     if(!i.inGuild() || i.guildId!==ctx.env.guildId) throw new UserError('Deze bot werkt uitsluitend in de ingestelde server.');
     const count=ctx.store.hit(i.guildId,i.user.id,'interaction-rate',10000);
     if(count>12) throw new UserError('Te veel interacties. Probeer over 10 seconden opnieuw.');
-    if(!i.isChatInputCommand() && i.customId.startsWith('setup:')) {
-      const [,key,...action]=i.customId.split(':'); await ctx.setup.handle(i,key,action.join(':')); return;
-    }
     if(i.isChatInputCommand()) {
       await i.deferReply({flags:MessageFlags.Ephemeral});
       const sub=i.options.getSubcommand(false), key=`${i.commandName}${sub ? `.${sub}` : ''}`;
@@ -52,14 +49,15 @@ export async function interaction(ctx,i) {
       const resource=service==='events' ? 'events:tick' : service==='giveaways' && i.commandName==='giveawaybeheer' ? `draw:${i.options.getString('id')}` : target ? `member:${target}` : `channel:${i.channelId}`;
       await ctx.mutex.run(resource,async()=>{
         const current=policy(i.commandName,sub).scope==='public' ? auth : await authorize(i,ctx,policy(i.commandName,sub),key);
-        return service==='system' ? system(ctx,i,current.member,current.c) : service==='setup' ? ctx.setup.open(i,current.member,current.c) : ctx[service].execute(i,current.member,current.c);
+        return service==='system' ? system(ctx,i,current.member,current.c) : ctx[service].execute(i,current.member,current.c);
       });
     } else {
       const [type,...parts]=i.customId.split(':');
-      update=['view','changelog'].includes(type);
+      update=['view','changelog','help'].includes(type);
       if(update) await i.deferUpdate(); else await i.deferReply({flags:MessageFlags.Ephemeral});
       await authorize(i,ctx,{scope:'public'},'public');
       if(type==='view') await viewButton(ctx,i,parts[0],parts[1]);
+      else if(type==='help') await ctx.help.handle(i,parts[0],parts[1],parts[2]);
       else if(type==='changelog') await ctx.communication.button(i,parts[0],parts[1]);
       else if(type==='giveaway') await ctx.mutex.run(`draw:${parts[0]}`,()=>ctx.giveaways.join(i,parts[0]));
       else if(type==='event') await ctx.mutex.run('events:tick',()=>ctx.events.button(i,parts[0],parts[1]));
@@ -71,7 +69,7 @@ export async function interaction(ctx,i) {
     if(!(e instanceof UserError)) await ctx.logger.error(i.guild,'Interactie mislukt',e);
     const data=i.guild ? payload(i.guild,c,'Actie niet uitgevoerd of niet bevestigd',message,{error:true}) : {content:message};
     try {
-      if(i.replied || (i.deferred && (update || i.customId?.startsWith('setup:')))) await i.followUp({...data,flags:MessageFlags.Ephemeral});
+      if(i.replied || (i.deferred && update)) await i.followUp({...data,flags:MessageFlags.Ephemeral});
       else if(i.deferred) await i.editReply(data);
       else await i.reply({...data,flags:MessageFlags.Ephemeral});
     } catch(err) { console.error(`Interactieantwoord niet bezorgd: ${err.code || 'API-fout'}`); }

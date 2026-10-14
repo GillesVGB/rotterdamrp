@@ -3,10 +3,12 @@ import { staffCommands } from './staff/definitions.js';
 import { moderationCommands } from './moderation/definitions.js';
 import { communityCommands } from './community/definitions.js';
 import { utilityCommands } from './utility/definitions.js';
-import { securityCommands } from './security/definitions.js';
-export const definitions = [...staffCommands,...moderationCommands,...communityCommands,...utilityCommands,...securityCommands];
+const category=(commands,helpCategory)=>commands.map(d=>({...d,helpCategory}));
+export const definitions = [...category(staffCommands,'staff'),...category(moderationCommands,'moderatie'),
+  ...communityCommands.map(d=>({...d,helpCategory:['apv','regels'].includes(d.name)?'documenten':d.name==='fivem'?'fivem':'community'})),
+  ...utilityCommands.map(d=>({...d,helpCategory:['say','embed','changelog'].includes(d.name)?'communicatie':'beheer'}))];
 function options(builder, opts = []) {
-  const methods = { user: 'addUserOption', string: 'addStringOption', int: 'addIntegerOption', bool: 'addBooleanOption', channel: 'addChannelOption' };
+  const methods = { user: 'addUserOption', role:'addRoleOption', string: 'addStringOption', int: 'addIntegerOption', bool: 'addBooleanOption', channel: 'addChannelOption' };
   for (const [type,name,description,required,extra,max] of opts) builder[methods[type]](o => {
     o.setName(name).setDescription(description).setRequired(required);
     if (type === 'string') { o.setMaxLength(max || 1000); if (Array.isArray(extra)) o.addChoices(...extra.map(x => ({ name:x, value:x }))); }
@@ -19,8 +21,8 @@ function options(builder, opts = []) {
 export function builders() {
   return definitions.map(d => {
     const b = new SlashCommandBuilder().setName(d.name).setDescription(d.description).setDMPermission(false);
-    // Runtime-autorisatie is leidend. Public roots met private subcommands blijven zichtbaar.
-    if (!d.subcommands && d.scope !== 'public' && !d.owner) b.setDefaultMemberPermissions(PermissionFlagsBits[d.permission]);
+    // Beheer kan ook zonder de individuele Discord-permissies commands gebruiken.
+    // Daarom controleert iedere handler de rechten opnieuw op de server.
     if (d.subcommands) for (const sub of d.subcommands) b.addSubcommand(s => options(s.setName(sub.name).setDescription(sub.description), sub.options));
     else options(b, d.options);
     return b;

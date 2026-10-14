@@ -1,10 +1,10 @@
-import { REST,Routes } from 'discord.js';
+import { REST } from 'discord.js';
 import { environment } from '../src/config.js';
-import { builders } from '../src/commands/registry.js';
+import { registerGuildCommands } from '../src/services/command-registration.js';
 import { redact } from '../src/services/logging.js';
 const env=environment();
 try {
-  const commands=builders().map(b=>b.toJSON()),rest=new REST({version:'10'}).setToken(env.token);
-  await rest.put(Routes.applicationGuildCommands(env.clientId,env.guildId),{body:commands});
-  console.log(`${commands.length} slash commands geregistreerd in guild ${env.guildId}.`);
+  const rest=new REST({version:'10'}).setToken(env.token);
+  const count=await registerGuildCommands(rest,env.clientId,env.guildId);
+  console.log(`${count} slash commands geregistreerd in guild ${env.guildId}.`);
 } catch(e) { console.error(redact(e.message,env)); process.exitCode=1; }

@@ -29,7 +29,7 @@ export class Scheduler {
         }
       } catch(e) { store.run('UPDATE sanctions SET retry_at=? WHERE id=?',now+60000,s.id); await logger.error(guild,`Banherstel #${s.id}`,e); }
     });
-    store.run("UPDATE sanctions SET active=0 WHERE active=1 AND expires_at IS NOT NULL AND expires_at<=? AND kind IN ('timeout','auto-spam','auto-mentions')",now);
+    store.run("UPDATE sanctions SET active=0 WHERE active=1 AND expires_at IS NOT NULL AND expires_at<=? AND kind='timeout'",now);
   }
   async tick() {
     if(this.running || this.stopping || !this.ctx.client.isReady()) return;
@@ -53,7 +53,7 @@ export class Scheduler {
           store.run('DELETE FROM logs WHERE created_at<?',cutoff);
           store.run('DELETE FROM incidents WHERE created_at<?',cutoff);
           store.run("DELETE FROM outbox WHERE state='sent' AND created_at<? AND id NOT LIKE 'fivem:%'",cutoff);
-          store.run('DELETE FROM sessions WHERE expires_at<?',Date.now()); store.run('DELETE FROM views WHERE expires_at<?',Date.now());
+          store.run('DELETE FROM views WHERE expires_at<?',Date.now());
         });
       }
     } finally { this.running=false; }

@@ -17,7 +17,7 @@ export class Logger {
     store.run('INSERT INTO logs(guild_id,category,actor,target,action,reason,result,created_at) VALUES (?,?,?,?,?,?,?,?)', guild.id, category, actor, target, action, reason, result, Date.now());
     const c = store.config(guild.id), channel = c.channels[category];
     if (channel) store.queue(guild.id, channel, payload(guild, c, action, `Uitvoerder: ${actor ? `<@${actor}>` : 'Systeem / onbekend'}\nDoelwit: ${target ? `<@${target}>` : '—'}\nReden: ${truncate(reason, 800) || '—'}\nResultaat: ${truncate(result, 800)}`));
-    else if (['security','system'].includes(category)) console.warn(`[${category}] ${action}: ${result}`);
+    else if (category==='system') console.warn(`[${category}] ${action}: ${result}`);
   }
   async error(guild, label, error) {
     console.error(`${label}: ${redact(error.message, this.ctx.env)}`);

@@ -1,5 +1,5 @@
 import { PermissionFlagsBits as P } from 'discord.js';
-import { botPermissions, hierarchy, grantable, writable } from '../security/permissions.js';
+import { botPermissions, hierarchy, grantable, writable,isManagement } from '../security/permissions.js';
 import { embed, payload, logo, brandEmoji } from '../utils/embeds.js';
 import { UserError, text } from '../utils/validation.js';
 import { mutate, dm } from './logging.js';
@@ -41,37 +41,41 @@ export class StaffService {
       await logger.log(i.guild,'staff',name,{actor:i.user.id,target:user.id,reason:note ? 'Interne opmerking opgeslagen; details via /staffgeschiedenis.' : reason});
       return i.editReply(payload(i.guild,c,'Staffregistratie opgeslagen',`<@${user.id}>${status ? ` • ${status}` : ''}`));
     }
-    const configuredRoles = name === 'ontslag' ? [...new Set([...c.roles.ranks.map(r=>r.roleId),...c.roles.management,...c.roles.moderator,...c.roles.support])] : c.roles.ranks.map(r=>r.roleId);
+    const pastRoles=store.all('SELECT new_role_id FROM staff_history WHERE guild_id=? AND user_id=? AND new_role_id IS NOT NULL',i.guildId,user.id).map(r=>r.new_role_id);
+    const configuredRoles = [...new Set([...c.roles.ranks.map(r=>r.roleId),...(existing?.role_id ? [existing.role_id] : []),...pastRoles,...(name === 'ontslag' ? [...c.roles.moderator,...c.roles.support] : [])])];
     const oldRoles = target.roles.cache.filter(r=>configuredRoles.includes(r.id));
-    const oldRank = c.roles.ranks.filter(r=>oldRoles.has(r.roleId)).sort((a,b)=>b.level-a.level)[0];
+    const oldRole = (existing?.role_id && oldRoles.get(existing.role_id)) || [...oldRoles.values()].sort((a,b)=>b.comparePositionTo(a))[0];
+    const oldRank = oldRole ? {name:c.roles.ranks.find(r=>r.roleId===oldRole.id)?.name || existing?.rank || oldRole.name,roleId:oldRole.id,level:oldRole.position} : null;
+    const management=isManagement(member,c,this.ctx.env);
     let rank = null;
     if (name !== 'ontslag') {
-      const rankName = text(i.options.getString(name === 'aannemen' ? 'functie' : 'nieuwe_rank'),50);
-      rank = c.roles.ranks.find(r=>r.name.toLowerCase() === rankName.toLowerCase());
-      if (!rank) throw new UserError('Rank niet geconfigureerd. Voeg de echte rol toe via /setup.');
-      if((this.ctx.env.ownerRoles || []).includes(rank.roleId)) throw new UserError('Ownerrollen mogen niet via staffcommands worden toegekend.');
-      grantable(member,await i.guild.roles.fetch(rank.roleId),me);
+      const selected = i.options.getRole(name === 'aannemen' ? 'functie' : 'nieuwe_rank',true);
+      const role=selected?.id ? await i.guild.roles.fetch(selected.id) : null;
+      if(!role) throw new UserError('Selecteer een bestaande Discord-rol.');
+      if([...(this.ctx.env.ownerRoles || []),...(this.ctx.env.managementRoles || []),...c.roles.management,...c.roles.protected].includes(role.id)) throw new UserError('Ownerrollen en beschermde beheerrollen mogen niet via staffcommands worden toegekend.');
+      grantable(member,role,me,management);
+      rank={name:c.roles.ranks.find(r=>r.roleId===role.id)?.name || role.name,roleId:role.id,level:role.position};
       if (name === 'aannemen' && existing && existing.status !== 'ontslagen') throw new UserError('Deze gebruiker is al geregistreerd als staff. Gebruik /staffupdate.');
       if (name === 'staffupdate') {
-        if (!existing || existing.status === 'ontslagen' || !oldRank) throw new UserError('Er is geen bestaande staffrank op Discord. Controleer de configuratie en historie.');
+        if (!existing || existing.status === 'ontslagen' || !oldRank) throw new UserError('Er is geen bestaande staffrank op Discord. Controleer de staffhistorie en rollen.');
         const type = i.options.getString('type');
-        if ((type === 'rank-up' && rank.level <= oldRank.level) || (type === 'rank-down' && rank.level >= oldRank.level)) throw new UserError('De nieuwe rank past niet bij de gekozen richting.');
+        const direction=role.comparePositionTo(oldRole);
+        if ((type === 'rank-up' && direction <= 0) || (type === 'rank-down' && direction >= 0)) throw new UserError('De nieuwe rank past niet bij de gekozen richting.');
       }
     } else if (!existing || existing.status === 'ontslagen') throw new UserError('Deze gebruiker is niet in dienst volgens de database.');
     const channelKey = name === 'aannemen' ? 'hiring' : name === 'ontslag' ? 'dismissal' : 'staffUpdates';
     await writable(i.guild,c.channels[channelKey]);
-    const removeRoles = name === 'ontslag' ? (i.options.getBoolean('rol_verwijderen') ?? c.staff.removeRolesOnDismissal) : true;
-    if (removeRoles) for (const role of oldRoles.values()) grantable(member,role,me);
+    for (const role of oldRoles.values()) grantable(member,role,me,management);
     const note = i.options.getString('opmerking');
     await mutate(this.ctx,i,name,user.id,{oldRoles:[...oldRoles.keys()],newRole:rank?.roleId || null,reason},async action => {
       if (rank) await target.roles.add(rank.roleId,`RLRP ${name} ${action}`);
-      if (removeRoles) {
-        const remove = [...oldRoles.keys()].filter(r=>r !== rank?.roleId);
-        if (remove.length) await target.roles.remove(remove,`RLRP ${name} ${action}`);
-      }
+      const remove = [...oldRoles.keys()].filter(r=>r !== rank?.roleId);
+      // Een array veroorzaakt bij discord.js een volledige PATCH op basis van de
+      // oude cache. De losse DELETE-route behoudt de zojuist toegevoegde rol.
+      for(const roleId of remove) await target.roles.remove(roleId,`RLRP ${name} ${action}`);
     },() => {
-      store.run('INSERT INTO staff VALUES (?,?,?,?,?) ON CONFLICT(guild_id,user_id) DO UPDATE SET rank=excluded.rank,status=excluded.status,updated_at=excluded.updated_at',i.guildId,user.id,rank?.name || existing?.rank || null,name === 'ontslag' ? 'ontslagen' : 'actief',Date.now());
-      this.history(i,user.id,name === 'staffupdate' ? i.options.getString('type') : name,oldRank?.name || existing?.rank || null,rank?.name || null,reason,note);
+      store.run('INSERT INTO staff(guild_id,user_id,rank,status,updated_at,role_id) VALUES (?,?,?,?,?,?) ON CONFLICT(guild_id,user_id) DO UPDATE SET rank=excluded.rank,status=excluded.status,updated_at=excluded.updated_at,role_id=excluded.role_id',i.guildId,user.id,rank?.name || existing?.rank || null,name === 'ontslag' ? 'ontslagen' : 'actief',Date.now(),rank?.roleId || null);
+      this.history(i,user.id,name === 'staffupdate' ? i.options.getString('type') : name,oldRank?.name || existing?.rank || null,rank?.name || null,reason,note,oldRank?.roleId || existing?.role_id || null,rank?.roleId || null);
       const direction=name==='ontslag' || (name==='staffupdate' && i.options.getString('type')==='rank-down') ? 'downvote' : 'upvote';
       const vote=brandEmoji(i.guild,c,direction),voteText=vote?.toString() || (direction==='upvote' ? '⬆️' : '⬇️');
       const description = name === 'aannemen' ? `<@${user.id}>\n**Aangenomen ➜ <@&${rank.roleId}>**\n\nWelkom ${user.username} ❤️` : name === 'ontslag' ? `**Ontslagen ➜ <@${user.id}>**\nReden: ${reason}` : `**${i.options.getString('type')} ➜ <@&${rank.roleId}>**\n<@${user.id}> • ${oldRank?.name || '—'} ➜ ${rank.name}\nReden: ${reason}`;
@@ -84,8 +88,8 @@ export class StaffService {
     if (c.staff.dm) await dm(this.ctx,i.guild,user,payload(i.guild,c,'Staffwijziging',`${name}: ${rank?.name || 'ontslag'}\nReden: ${reason}`));
     await i.editReply(payload(i.guild,c,'Staffwijziging uitgevoerd',`<@${user.id}> • ${rank?.name || 'ontslagen'}\nDe publicatie staat in de persistente verzendwachtrij.`));
   }
-  history(i,user,kind,oldRank,newRank,reason,note=null) {
-    this.ctx.store.run('INSERT INTO staff_history(guild_id,user_id,actor,kind,old_rank,new_rank,reason,note,created_at) VALUES (?,?,?,?,?,?,?,?,?)',i.guildId,user,i.user.id,kind,oldRank,newRank,reason,note,Date.now());
+  history(i,user,kind,oldRank,newRank,reason,note=null,oldRole=null,newRole=null) {
+    this.ctx.store.run('INSERT INTO staff_history(guild_id,user_id,actor,kind,old_rank,new_rank,reason,note,created_at,old_role_id,new_role_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)',i.guildId,user,i.user.id,kind,oldRank,newRank,reason,note,Date.now(),oldRole,newRole);
   }
   async warning(i,member,c,sub) {
     const { store, logger } = this.ctx;
@@ -94,7 +98,7 @@ export class StaffService {
       const rows = store.all('SELECT * FROM staff_warnings WHERE guild_id=? AND user_id=? ORDER BY id DESC',i.guildId,user.id);
       return showView(this.ctx,i,'Interne staffwaarschuwingen',rows.map(r=>`#${r.id} • ${stamp(r.created_at)} • <@${r.actor}>\n${r.reason}\n${r.revoked_at ? `Ingetrokken door <@${r.revoked_by}>` : 'Actief'}`).join('\n\n'),'staffwaarschuwing.bekijken');
     }
-    const channel = await writable(i.guild,c.channels.staffWarnings,{privateStaff:true,c});
+    const channel = await writable(i.guild,c.channels.staffWarnings,{privateStaff:true,c,env:this.ctx.env});
     const reason = text(i.options.getString('reden'));
     let userId, warningId;
     if (sub === 'geven') {

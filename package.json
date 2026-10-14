@@ -2,7 +2,7 @@
   "name": "rlrp-main-bot",
   "version": "1.0.0",
   "private": true,
-  "description": "Rotterdam Roleplay management, moderation and security bot",
+  "description": "Rotterdam Roleplay staffmanagement, moderation and community bot",
   "type": "module",
   "main": "index.js",
   "engines": { "node": ">=24.12.0 <25" },

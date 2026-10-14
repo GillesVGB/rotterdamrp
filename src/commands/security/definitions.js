@@ -1,5 +1,0 @@
-export const securityCommands = [{ name: 'antinuke', description: 'Beheer Anti-Nuke.', scope: 'management', owner: true, subcommands: [
-  { name: 'status', description: 'Toon thresholds, allowlists en recente incidenten.', options: [] },
-  { name: 'configuratie', description: 'Wijzig een threshold, actie of expliciete allowlist.', options: [['string','regel','Regel',true,['channelCreate','channelDelete','channelUpdate','roleCreate','roleDelete','roleUpdate','webhook','ban','kick','guildUpdate','allowUser','allowBot','action']],['string','waarde','Threshold 1–50, ID, of strip/timeout/alert',true],['int','venster','Tijdvenster in seconden',false,5,300],['bool','verwijderen','Verwijder ID uit allowlist',false]] },
-  { name: 'test', description: 'Simuleer thresholds zonder Discord-mutaties.', options: [['string','regel','Regel',true,['channelCreate','channelDelete','channelUpdate','roleCreate','roleDelete','roleUpdate','webhook','ban','kick','guildUpdate']],['int','aantal','Gesimuleerde acties',true,1,100]] }
-] }];
