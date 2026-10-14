@@ -2,7 +2,7 @@
 
 ![Rotterdam Roleplay](assets/rlrp-banner.png)
 
-JavaScript-bot voor één Discord-server, met 32 slash commands en 52 commandroutes. Staffmanagement, gewone moderatie, wijzigingslogs, changelogs, giveaways, FiveM-status, APV/regels, evenementen, interne staffwaarschuwingen en `/help`. De commands voeren echte Discord-acties uit en bewaren hun gegevens in SQLite.
+JavaScript-bot voor één Discord-server, met 29 slash commands en 47 commandroutes. Staffmanagement, gewone moderatie, wijzigingslogs, changelogs, giveaways, FiveM-status, APV/regels, evenementen, interne staffwaarschuwingen en `/help`. De commands voeren echte Discord-acties uit en bewaren hun gegevens in SQLite.
 
 De bronbestanden, tests, lockfile, migraties en blauwe huisstijlassets zijn inbegrepen. Er staat geen Discord-token in de oplevering. Zie [architectuur](docs/ARCHITECTUUR.md), [testresultaten](docs/TESTRESULTATEN.md) en [live acceptatie](docs/ACCEPTATIE.md). Live Discord-/FiveM-acceptatie vereist jouw draaiende bot.
 
@@ -19,6 +19,7 @@ De token die in de chat is gedeeld, moet worden gereset in het [Discord Develope
 | Beheerrol | `1226509285924540473` |
 | Aannemen / staffupdate / ontslag | Altijd kanaal `1560050091245699245` |
 | Changelog | Altijd kanaal `1226509287459655704` |
+| APV | Altijd kanaal `1226509286587498599` |
 
 Bij opstart registreert de bot automatisch alle guildcommands. Controleer de console op een geslaagde registratie en typ daarna `/help` in Discord. Dat toont alle commands, subcommands, parameters en benodigde rechten, met categorieën en paginaknoppen. De commandantwoorden met interne gegevens zijn alleen zichtbaar voor de uitvoerder.
 
@@ -78,8 +79,8 @@ De automatische registratie en `npm run register` vervangen de guildcommands van
 | Groep | Commands | Toegang |
 | --- | --- | --- |
 | Hulp | `/help` | Serverleden |
-| Staff | `/aannemen`, `/ontslag`, `/staffupdate`, `/staffopmerking`, `/staffstatus` | Beheer |
-| Staff lezen | `/staffoverzicht`, `/staffgeschiedenis`, `/staffstats` | Beheer |
+| Staff | `/aannemen`, `/ontslag`, `/staffupdate`, `/staffopmerking` | Beheer |
+| Staff lezen | `/staffoverzicht`, `/staffgeschiedenis` | Beheer |
 | Intern | `/staffwaarschuwing geven/bekijken/intrekken` | Beheer |
 | Bans | `/ban`, `/unban` | Beheer of Ban Members |
 | Kick | `/kick` | Beheer of Kick Members |
@@ -89,7 +90,7 @@ De automatische registratie en `npm run register` vervangen de guildcommands van
 | Kanaalslot | `/lock`, `/unlock` | Beheer of Manage Channels |
 | Moderatiehistorie | `/modlogs` | Beheer of View Audit Log |
 | Communicatie | `/say`, `/embed`, `/changelog` | Beheer |
-| Giveaway | `/giveaway`, `/giveawaybeheer eindigen/opnieuw/reroll` | Beheer |
+| Giveaway | `/giveawaybeheer opnieuw` (bestaande giveaway) | Beheer |
 | Giveaway lezen | `/giveawaybeheer status/bewijs` | Serverleden |
 | Documenten | `/apv` en `/regels` bekijken/accepteren | Serverleden |
 | Documentbeheer | `/apv` en `/regels` toevoegen/publiceren/acceptaties | Beheer |
@@ -109,7 +110,7 @@ Duraties: `30s`, `30m`, `2h`, `7d`, `1w`. Timeouts maximaal 28 dagen, algemene b
 
 ## Optionele configuratie
 
-De standaardinstellingen staan in `config/default.json`; bestaande instellingen staan in SQLite. De vier vaste RLRP-publicatiebestemmingen worden ook op bestaande databases toegepast. Voor optionele log-/modulekanalen kun je lokaal exporteren en importeren:
+De standaardinstellingen staan in `config/default.json`; bestaande instellingen staan in SQLite. De vaste RLRP-publicatiekanalen worden ook op bestaande databases toegepast. Voor optionele log-/modulekanalen kun je lokaal exporteren en importeren:
 
 ```powershell
 npm.cmd run config:export -- .\config\export.json
@@ -130,7 +131,7 @@ Voor interne staffwaarschuwingen stel je `channels.staffWarnings` in en maak je 
 
 Giveaways gebruiken een deelnameknop, unieke SQL-entry per lid en hercontrole van lidmaatschap bij afsluiten. Vrije `voorwaarden`-tekst is informatief. Een cryptografische seed wordt vooraf met SHA-256 gecommit en op Discord gepubliceerd. Bij afsluiten sorteert de bot geldige deelnemers op `SHA256(seed + ':' + ID)`; te weinig geldige deelnemers betekent geen winnaars. Bij een API-fout wordt de sluiting later hervat. Seed, commitment, snapshot en resultaten zijn beschikbaar via `/giveawaybeheer bewijs`; zie [trekking verifiëren](docs/GIVEAWAY-BEWIJS.md).
 
-`opnieuw` opent een nieuwe ronde; eerdere bewijzen blijven bewaard. `reroll` publiceert een nieuwe commitment, wacht 30 seconden en gebruikt dezelfde deelnemers met uitsluiting van eerdere winnaars. Een beheerder met schrijfrechten op de database kan de opgeslagen gegevens technisch manipuleren.
+`/giveawaybeheer opnieuw` opent een nieuwe ronde van een bestaande giveaway; eerdere bewijzen blijven bewaard. Actieve giveaways sluiten automatisch op hun ingestelde eindtijd. Een beheerder met schrijfrechten op de database kan de opgeslagen gegevens technisch manipuleren.
 
 Zet het FiveM-endpoint in `FIVEM_BASE_URL` en eventueel de echte `https://cfx.re/join/...` link in `FIVEM_JOIN_URL`. De bot gebruikt `info.json`, `dynamic.json` en `players.json`; zie de [officiële Cfx-documentatie](https://docs.fivem.net/docs/server-manual/proxy-setup/). Een statuskanaal wordt standaard iedere 60 seconden bijgewerkt; commands gebruiken maximaal 15 seconden cache. HTTP-timeout is 5 seconden per endpoint, response maximaal 1 MiB, geen redirects. Spelersnamen zijn standaard verborgen; `fivem.showPlayers` zet ze aan. Afgeschermde endpoints of netwerkstoringen worden als onbereikbaar/onbekend weergegeven. IP's en license-identifiers worden niet gepubliceerd.
 
@@ -142,7 +143,7 @@ Evenementen worden als externe Discord Scheduled Events aangemaakt, met daarnaas
 
 `assets/rlrp-logo.png` en `assets/rlrp-banner.png` volgen jouw referenties: blauwe Rotterdamse skyline, metallic witte R, witte 3D-lettering en cyaan Roleplay-script. Upload het logo als servericon/botavatar en de banner waar Discord dit ondersteunt. Changelogs voegen de banner als attachment toe. De embeds gebruiken #1675FF en waar aanwezig het servericon. De prompts staan in [assets/GENERATIE.md](assets/GENERATIE.md).
 
-De bot leest bij opstart en iedere vijf minuten de applicationemoji `rlogo`, `upvote` en `downvote`. De applicationcache krijgt voorrang op een gelijknamig guildemoji. Aannemen/promotie gebruikt `:upvote:`, demotie/ontslag `:downvote:`. Bij alle staffberichten staat de `rlogo`-emoji als thumbnail en als reactie onder het bericht; de embedtekst blijft zonder logo-emoji. Ontbrekende upvote/downvote-emoji tonen Unicode-fallbacks. Volgens de [officiële Emoji API](https://docs.discord.com/developers/resources/emoji#application-owned-emoji) vereisen applicationemoji geen Use External Emojis; die permissie blijft nuttig voor guildemoji.
+De bot leest bij opstart en iedere vijf minuten de applicationemoji `rlogo`, `upvote` en `downvote`. De applicationcache krijgt voorrang op een gelijknamig guildemoji. Aannemen/promotie gebruikt `:upvote:`, demotie/ontslag `:downvote:`. Staffaankondigingen bevatten geen foto's en noemen de uitvoerder met een Discord-mention; de `rlogo`-emoji wordt als reactie onder het bericht geplaatst. Interne retry-ID's worden via Discords nonce afgehandeld en staan niet in de footer. Ontbrekende upvote/downvote-emoji tonen Unicode-fallbacks. Volgens de [officiële Emoji API](https://docs.discord.com/developers/resources/emoji#application-owned-emoji) vereisen applicationemoji geen Use External Emojis; die permissie blijft nuttig voor guildemoji.
 
 ## Onderhoud en herstel
 

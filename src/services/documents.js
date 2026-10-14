@@ -28,7 +28,7 @@ export class DocumentService {
       const rows = store.all('SELECT * FROM acceptances WHERE document_id=? ORDER BY created_at DESC',doc.id);
       return showView(this.ctx,i,`Acceptaties • ${kind} v${doc.version}`,rows.map(r=>`<@${r.user_id}> • <t:${Math.floor(r.created_at/1000)}:f>`).join('\n'),`${kind}.acceptaties`);
     }
-    const channel = await writable(i.guild,c.channels.rules), chunks = pages(doc.content,3300);
+    const channel = await writable(i.guild,kind==='apv' ? (c.channels.apv || c.channels.rules) : c.channels.rules), chunks = pages(doc.content,3300);
     store.transaction(() => {
       store.run('UPDATE documents SET published=1 WHERE id=?',doc.id);
       chunks.forEach((chunk,index)=>store.queue(i.guildId,channel.id,{...payload(i.guild,c,`${doc.title} • v${doc.version}`,chunk,{footer:`${kind.toUpperCase()} • Pagina ${index+1}/${chunks.length}`}),components:index===chunks.length-1 ? [new ActionRowBuilder().addComponents(new ButtonBuilder().setCustomId(`accept:${doc.id}`).setLabel(`Accepteer ${kind} v${doc.version}`).setStyle(ButtonStyle.Success)).toJSON()] : []},`doc:${doc.id}:${index}`));

@@ -10,7 +10,7 @@ const staffNames=new Set(staffCommands.map(x=>x.name)), modNames=new Set(moderat
 export function serviceFor(name) {
   if(name==='help') return 'help';
   if(staffNames.has(name)) return 'staff'; if(modNames.has(name)) return 'moderation';
-  if(['giveaway','giveawaybeheer'].includes(name)) return 'giveaways';
+  if(name==='giveawaybeheer') return 'giveaways';
   if(['apv','regels'].includes(name)) return 'documents';
   if(name==='evenement') return 'events'; if(name==='fivem') return 'fivem';
   if(['say','embed','changelog'].includes(name)) return 'communication'; if(name==='systeem') return 'system';

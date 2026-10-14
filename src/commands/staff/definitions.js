@@ -5,8 +5,6 @@ export const staffCommands = [
   { name: 'staffoverzicht', description: 'Toon alle geregistreerde medewerkers.', scope: 'management', permission: 'ViewAuditLog', options: [] },
   { name: 'staffgeschiedenis', description: 'Bekijk de staffhistorie van een medewerker.', scope: 'management', permission: 'ViewAuditLog', options: [['user','gebruiker','Medewerker',true]] },
   { name: 'staffopmerking', description: 'Sla een interne staffopmerking op.', scope: 'management', permission: 'ManageRoles', options: [['user','gebruiker','Medewerker',true],['string','opmerking','Interne opmerking',true]] },
-  { name: 'staffstatus', description: 'Wijzig de beschikbaarheidsstatus van een medewerker.', scope: 'management', permission: 'ManageRoles', options: [['user','gebruiker','Medewerker',true],['string','status','Nieuwe status',true,['actief','afwezig','inactief']],['string','reden','Reden',true]] },
-  { name: 'staffstats', description: 'Toon staffstatistieken uit de database.', scope: 'management', permission: 'ViewAuditLog', options: [] },
   { name: 'staffwaarschuwing', description: 'Beheer interne staffwaarschuwingen.', scope: 'management', permission: 'ManageRoles', subcommands: [
     { name: 'geven', description: 'Registreer een interne waarschuwing.', options: [['user','gebruiker','Medewerker',true],['string','reden','Interne reden',true]] },
     { name: 'bekijken', description: 'Bekijk interne waarschuwingen.', options: [['user','gebruiker','Medewerker',true]] },

@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { AttachmentBuilder } from 'discord.js';
 import { fileURLToPath } from 'node:url';
 import { payload, NO_MENTIONS } from '../utils/embeds.js';
@@ -34,6 +34,9 @@ export class Outbox {
         if (!channel?.isTextBased()) throw new Error('Outboxkanaal ontbreekt of is geen tekstkanaal.');
         let data = JSON.parse(item.payload);
         const reference = `RLRP:${item.id}`;
+        // Discord nonce blijft onzichtbaar in embeds en helpt een send na timeout
+        // terug te vinden. De legacy-marker vangt berichten van oude versies op.
+        const nonce = createHash('sha256').update(`${guild.id}:${item.id}`).digest('hex').slice(0,25);
         if(item.id.startsWith('giveaway:')) {
           const giveaway=store.get('SELECT * FROM giveaways WHERE id=?',item.id.slice(9));
           if(giveaway) data=this.ctx.giveaways.data(guild,store.config(guild.id),giveaway);
@@ -46,11 +49,12 @@ export class Outbox {
         if(data.brandAsset==='banner') {data.files=[new AttachmentBuilder(fileURLToPath(new URL('../../assets/rlrp-banner.png',import.meta.url)),{name:'rlrp-banner.png'})];}
         delete data.brandAsset;
         const messages = item.attempts > 0 ? await channel.messages.fetch({ limit: 100 }) : null;
-        let message = messages?.find(m => m.author.id === client.user.id && (m.embeds.some(e => e.footer?.text?.includes(reference)) || m.content.endsWith(`\n-# ${reference}`)));
+        let message = messages?.find(m => m.author.id === client.user.id && (String(m.nonce) === nonce || m.embeds.some(e => e.footer?.text?.includes(reference)) || m.content.endsWith(`\n-# ${reference}`)));
         if (!message) {
-          if(data.embeds?.length) data.embeds[0].footer = { text: `${truncate(data.embeds[0].footer?.text || 'RLRP', 1900)} • ${reference}` };
-          else data.content=`${data.content}\n-# ${reference}`;
-          message = await channel.send({ ...data, allowedMentions: NO_MENTIONS });
+          // Markeer vóór het REST-verzoek, zodat een crash na verzending maar
+          // vóór de SQL-commit bij herstart ook eerst op de nonce kan zoeken.
+          if (item.attempts === 0) store.run('UPDATE outbox SET attempts=1 WHERE id=? AND attempts=0',item.id);
+          message = await channel.send({ ...data, nonce, enforceNonce: true, allowedMentions: NO_MENTIONS });
         }
         store.transaction(()=>{
           store.run("UPDATE outbox SET state='sent',message_id=?,error=NULL WHERE id=?", message.id, item.id);

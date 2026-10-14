@@ -6,13 +6,13 @@ De offline tests controleren echte SQLite-opslag en gesimuleerde Discord-grenzen
 | --- | --- |
 | `npm run doctor` | Kernbotrechten en vaste publicatiekanalen gecontroleerd; hoogste botrol getoond |
 | Bot starten met alleen Env-tabje | Geen verplichte `.env`; console meldt succesvolle registratie voor de juiste app/server |
-| `npm run register` | 32 guildcommands geregistreerd voor de juiste app/server, ook zonder `.env` |
+| `npm run register` | 29 guildcommands geregistreerd voor de juiste app/server, ook zonder `.env` |
 | `/help` | Alle commands/subcommands, vereiste en optionele parameters, rechten en werkende categorie-/paginaknoppen |
 | Beheerrol / Administrator / servereigenaar | Alle commands toegankelijk; echte botrechten en hiërarchie blijven gecontroleerd |
 | Gewone moderator zonder ingestelde staffgroep | Moderatie toegankelijk met de vereiste Discord-permissie; zonder die permissie en Beheerrol server-side afgewezen |
 | Gewoon lid bij staff-/communicatiebeheer | Server-side afgewezen, ook als het slash command zichtbaar is |
 | Beheerrol weghalen bij lid zonder Administrator | Volgende beheeractie weigert toegang |
-| `:rlogo:` | Geen logo-emoji in embedtekst; gelinkte emoji-afbeelding als thumbnail en echte reactie bij aannemen, promotie, demotie en ontslag |
+| Staffembeds | Geen foto's of interne retry-ID's in de footer; upvote/downvote in de titel, uitvoerder vermeld en `rlogo` als reactie |
 | `/aannemen` met lager testlid | Native Discord-rolkiezer, echte rol toegewezen zonder vooraf ingestelde ranks, rol-ID en historie opgeslagen; DM-fout apart gelogd |
 | `/staffupdate` | Native rolkiezer, nieuwe rankrol echt toegevoegd, oude staffrankrol echt verwijderd, andere communityrollen behouden |
 | Promotie/demotie met omgekeerde geconfigureerde levels | Richting volgt altijd de echte Discord-rolhiërarchie |
@@ -32,9 +32,10 @@ De offline tests controleren echte SQLite-opslag en gesimuleerde Discord-grenzen
 | `/changelog` met versie | Optionele versie getoond zonder extra verplichte parameters |
 | Giveaway deelnemen | Unieke entry, dubbelklik levert geen dubbele deelname |
 | Giveaway onvoldoende deelnemers | Nul winnaars, geen verzonnen winnaar |
-| Giveaway herstart/reroll | Nieuwe commitment, historie blijft, vorige winnaars uitgesloten bij reroll |
+| Giveaway herstart | Nieuwe ronde van een bestaande giveaway; eerdere bewijzen blijven staan; automatische eindtijd blijft werken |
 | Giveawaybewijs | Verifier klopt tegen oorspronkelijke commitment en snapshot |
-| APV/regels publiceren/accepteren | Versienummer en juiste document-ID; nieuwe versie wist oude acceptatie niet |
+| APV publiceren/accepteren | Publicatie in `1226509286587498599`; versie en acceptatieknop correct |
+| Regels publiceren/accepteren | Versienummer en juiste document-ID; nieuwe versie wist oude acceptatie niet |
 | Evenement | Discord Scheduled Event, capaciteit, afmelden, reminder, start en sluiten |
 | FiveM beschikbaar/onbereikbaar | Juiste echte aantallen of onbekend; geen IP/license-informatie |
 | Interne staffwaarschuwing | Publiek kanaal geweigerd; reden alleen privé/intern |

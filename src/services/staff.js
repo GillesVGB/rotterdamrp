@@ -20,26 +20,19 @@ export class StaffService {
       const rows = store.all('SELECT * FROM staff_history WHERE guild_id=? AND user_id=? ORDER BY id DESC',i.guildId,user.id);
       return showView(this.ctx,i,`Staffgeschiedenis • ${user.username}`,rows.map(r=>`#${r.id} ${stamp(r.created_at)} • ${r.kind}\n${r.old_rank || '—'} ➜ ${r.new_rank || '—'} • <@${r.actor}>\n${r.reason}${r.note ? `\nOpmerking: ${r.note}` : ''}`).join('\n\n'),'staffgeschiedenis');
     }
-    if (name === 'staffstats') {
-      const statuses = store.all('SELECT status,COUNT(*) AS n FROM staff WHERE guild_id=? GROUP BY status',i.guildId);
-      const history = store.all('SELECT kind,COUNT(*) AS n FROM staff_history WHERE guild_id=? GROUP BY kind',i.guildId);
-      return i.editReply(payload(i.guild,c,'Staffstatistieken',`Medewerkers\n${statuses.map(r=>`${r.status}: ${r.n}`).join('\n') || '0'}\n\nGeregistreerde acties\n${history.map(r=>`${r.kind}: ${r.n}`).join('\n') || '0'}`));
-    }
     if (name === 'staffwaarschuwing') return this.warning(i,member,c,sub);
     if (!user) throw new UserError('Gebruiker ontbreekt.');
     const target = await i.guild.members.fetch({user:user.id,force:true}), me = await botPermissions(i.guild,[P.ManageRoles]);
     hierarchy(member,target,me,c,this.ctx.env);
     const reason = text(i.options.getString('reden') || 'Geen reden opgegeven');
-    if (['staffstatus','staffopmerking'].includes(name)) {
+    if (name === 'staffopmerking') {
       if (!existing || existing.status === 'ontslagen') throw new UserError('Deze gebruiker is geen geregistreerde medewerker.');
-      const note = name === 'staffopmerking' ? text(i.options.getString('opmerking')) : null;
-      const status = i.options.getString('status');
+      const note = text(i.options.getString('opmerking'));
       store.transaction(() => {
-        if (status) store.run('UPDATE staff SET status=?,updated_at=? WHERE guild_id=? AND user_id=?',status,Date.now(),i.guildId,user.id);
         this.history(i,user.id,name,existing.rank,existing.rank,reason,note);
       });
-      await logger.log(i.guild,'staff',name,{actor:i.user.id,target:user.id,reason:note ? 'Interne opmerking opgeslagen; details via /staffgeschiedenis.' : reason});
-      return i.editReply(payload(i.guild,c,'Staffregistratie opgeslagen',`<@${user.id}>${status ? ` • ${status}` : ''}`));
+      await logger.log(i.guild,'staff',name,{actor:i.user.id,target:user.id,reason:'Interne opmerking opgeslagen; details via /staffgeschiedenis.'});
+      return i.editReply(payload(i.guild,c,'Staffregistratie opgeslagen',`Interne opmerking opgeslagen voor <@${user.id}>.`));
     }
     const pastRoles=store.all('SELECT new_role_id FROM staff_history WHERE guild_id=? AND user_id=? AND new_role_id IS NOT NULL',i.guildId,user.id).map(r=>r.new_role_id);
     const configuredRoles = [...new Set([...c.roles.ranks.map(r=>r.roleId),...(existing?.role_id ? [existing.role_id] : []),...pastRoles,...(name === 'ontslag' ? [...c.roles.moderator,...c.roles.support] : [])])];
@@ -78,14 +71,13 @@ export class StaffService {
       this.history(i,user.id,name === 'staffupdate' ? i.options.getString('type') : name,oldRank?.name || existing?.rank || null,rank?.name || null,reason,note,oldRank?.roleId || existing?.role_id || null,rank?.roleId || null);
       const direction=name==='ontslag' || (name==='staffupdate' && i.options.getString('type')==='rank-down') ? 'downvote' : 'upvote';
       const vote=brandEmoji(i.guild,c,direction),voteText=vote?.toString() || (direction==='upvote' ? '⬆️' : '⬇️');
-      const description = name === 'aannemen' ? `<@${user.id}>\n**Aangenomen ➜ <@&${rank.roleId}>**\n\nWelkom ${user.username} ❤️` : name === 'ontslag' ? `**Ontslagen ➜ <@${user.id}>**\nReden: ${reason}` : `**${i.options.getString('type')} ➜ <@&${rank.roleId}>**\n<@${user.id}> • ${oldRank?.name || '—'} ➜ ${rank.name}\nReden: ${reason}`;
-      const e = embed(i.guild,c,`${voteText} | ${name==='aannemen' ? target.displayName : name==='ontslag' ? 'Staffontslag' : direction==='upvote' ? 'Staffpromotie' : 'Staffdemotie'}`,description,{user});
-      e.setThumbnail('https://cdn.discordapp.com/emojis/1560047457361072198.webp?size=80');
+      const description = name === 'aannemen' ? `<@${user.id}>\n**Aangenomen ➜ <@&${rank.roleId}>**\n\nWelkom ${user.username} ❤️\nAangenomen door: <@${i.user.id}>` : name === 'ontslag' ? `**Ontslagen ➜ <@${user.id}>**\nReden: ${reason}\nOntslagen door: <@${i.user.id}>` : `**${i.options.getString('type')} ➜ <@&${rank.roleId}>**\n<@${user.id}> • ${oldRank?.name || '—'} ➜ ${rank.name}\nReden: ${reason}\nStaffupdate door: <@${i.user.id}>`;
+      const e = embed(i.guild,c,`${voteText} | ${name==='aannemen' ? target.displayName : name==='ontslag' ? 'Staffontslag' : direction==='upvote' ? 'Staffpromotie' : 'Staffdemotie'}`,description,{user,noImages:true});
       store.queue(i.guildId,c.channels[channelKey],{embeds:[e.toJSON()],reaction:logo(i.guild,c) || null});
     });
     await logger.log(i.guild,'staff',name,{actor:i.user.id,target:user.id,reason,result:`${oldRank?.name || existing?.rank || '—'} ➜ ${rank?.name || 'ontslagen'}`});
     if (c.staff.dm) await dm(this.ctx,i.guild,user,payload(i.guild,c,'Staffwijziging',`${name}: ${rank?.name || 'ontslag'}\nReden: ${reason}`));
-    await i.editReply(payload(i.guild,c,'Staffwijziging uitgevoerd',`<@${user.id}> • ${rank?.name || 'ontslagen'}\nDe publicatie staat in de persistente verzendwachtrij.`));
+    await i.editReply(payload(i.guild,c,'Staffwijziging uitgevoerd',`<@${user.id}> • ${rank?.name || 'ontslagen'}\nDe aankondiging wordt naar <#${c.channels[channelKey]}> verstuurd.`));
   }
   history(i,user,kind,oldRank,newRank,reason,note=null,oldRole=null,newRole=null) {
     this.ctx.store.run('INSERT INTO staff_history(guild_id,user_id,actor,kind,old_rank,new_rank,reason,note,created_at,old_role_id,new_role_id) VALUES (?,?,?,?,?,?,?,?,?,?,?)',i.guildId,user,i.user.id,kind,oldRank,newRank,reason,note,Date.now(),oldRole,newRole);

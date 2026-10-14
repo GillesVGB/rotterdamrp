@@ -5,7 +5,7 @@ import { id, integer, UserError } from './utils/validation.js';
 export const RLRP_GUILD_ID = '1226509285924540467';
 export const RLRP_MANAGEMENT_ROLE_ID = '1226509285924540473';
 export function fixedChannels(guild, channels) {
-  return guild === RLRP_GUILD_ID ? {...channels,hiring:'1560050091245699245',dismissal:'1560050091245699245',staffUpdates:'1560050091245699245',changelog:'1226509287459655704'} : channels;
+  return guild === RLRP_GUILD_ID ? {...channels,hiring:'1560050091245699245',dismissal:'1560050091245699245',staffUpdates:'1560050091245699245',changelog:'1226509287459655704',apv:'1226509286587498599'} : channels;
 }
 
 export function environment(env = process.env, requireToken = true) {
@@ -60,7 +60,7 @@ export function validateConfig(c) {
     if (typeof r.name !== 'string' || !/^[\p{L}\p{N} _-]{1,50}$/u.test(r.name) || names.has(r.name.toLowerCase()) || roleIds.has(r.roleId)) throw new UserError('Ranks hebben unieke namen en rollen nodig.');
     names.add(r.name.toLowerCase()); roleIds.add(r.roleId);
   }
-  keys(c.channels, ['hiring','dismissal','staffUpdates','changelog','giveaway','events','rules','fivem','staffWarnings','moderation','staff','messages','roles','channelChanges','members','system']);
+  keys(c.channels, ['hiring','dismissal','staffUpdates','changelog','apv','giveaway','events','rules','fivem','staffWarnings','moderation','staff','messages','roles','channelChanges','members','system']);
   Object.values(c.channels).filter(x => x !== null).forEach(id);
   keys(c.staff, ['dm']); Object.values(c.staff).forEach(bool);
   keys(c.moderation, ['dm','temporaryBans']); Object.values(c.moderation).forEach(bool);

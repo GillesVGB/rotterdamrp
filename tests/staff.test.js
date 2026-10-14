@@ -15,7 +15,10 @@ test('aannemen kent de geselecteerde Discord-rol toe, slaat historie op en publi
     assert.equal(f.target.roles.cache.has(IDs.support),true);
     const data=JSON.parse(f.store.get('SELECT payload FROM outbox').payload);
     assert.match(data.embeds[0].description,new RegExp(`<@&${IDs.support}>`));
+    assert.match(data.embeds[0].description,new RegExp(`Aangenomen door: <@${IDs.actor}>`));
     assert.ok(!data.embeds[0].description.includes('Intern'));
+    assert.equal(data.embeds[0].thumbnail,undefined);
+    assert.equal(data.embeds[0].author.icon_url,undefined);
   } finally {f.store.close();}
 });
 
@@ -49,6 +52,7 @@ test('rank-up verandert rollen en legt oude en nieuwe rank met Discord-IDs vast'
     const row=f.store.get("SELECT * FROM staff_history WHERE kind='rank-up'");
     assert.equal(row.old_rank,'Support');assert.equal(row.new_rank,'Moderator');
     assert.equal(row.old_role_id,IDs.support);assert.equal(row.new_role_id,IDs.mod);
+    assert.match(JSON.parse(f.store.get("SELECT payload FROM outbox WHERE id=(SELECT id FROM outbox ORDER BY rowid DESC LIMIT 1)").payload).embeds[0].description,new RegExp(`Staffupdate door: <@${IDs.actor}>`));
   } finally {f.store.close();}
 });
 
@@ -72,6 +76,7 @@ test('ontslag verwijdert staffrollen en bewaart een onafhankelijke communityrol'
     const staff=f.store.get('SELECT status,role_id FROM staff');
     assert.equal(staff.status,'ontslagen');assert.equal(staff.role_id,null);
     assert.equal(f.store.get("SELECT old_role_id FROM staff_history WHERE kind='ontslag'").old_role_id,IDs.support);
+    assert.match(JSON.parse(f.store.get('SELECT payload FROM outbox ORDER BY rowid DESC LIMIT 1').payload).embeds[0].description,new RegExp(`Ontslagen door: <@${IDs.actor}>`));
   } finally {f.store.close();}
 });
 

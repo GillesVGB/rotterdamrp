@@ -10,12 +10,12 @@ export function brandEmoji(guild,c,name) {
   return null;
 }
 export const logo=(guild,c)=>brandEmoji(guild,c,'rlogo')?.toString() || '';
-export function embed(guild, c, title, description = '', { user, error = false, footer } = {}) {
+export function embed(guild, c, title, description = '', { user, error = false, footer, noImages = false } = {}) {
   const e = new EmbedBuilder().setColor(error ? c.brand.errorColor : c.brand.color).setTitle(truncate(safe(title), 256))
     .setDescription(truncate(safe(description), 4096))
     .setFooter({ text: truncate(footer || `${c.brand.name} • ${guild.name}`, 2048) }).setTimestamp();
-  if (user) e.setAuthor({ name: truncate(user.username || user.displayName, 256), iconURL: user.displayAvatarURL() });
-  const icon=guild.iconURL?.({size:256}); if(icon) e.setThumbnail(icon);
+  if (user) e.setAuthor({ name: truncate(user.username || user.displayName, 256), ...(noImages ? {} : { iconURL: user.displayAvatarURL() }) });
+  const icon=noImages ? null : guild.iconURL?.({size:256}); if(icon) e.setThumbnail(icon);
   return e;
 }
 export function payload(guild, c, title, description, opts) { return { embeds: [embed(guild, c, title, description, opts).toJSON()], allowedMentions: NO_MENTIONS }; }
