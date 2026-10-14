@@ -6,10 +6,10 @@ const document = name => ({ name, description: `Beheer en lees ${name}.`, scope:
   { name: 'acceptaties', description: 'Bekijk acceptaties voor een versie.', scope: 'management', permission: 'ViewAuditLog', options: [['int','versie','Versie',true,1,2147483647]] }
 ] });
 export const communityCommands = [
-  { name: 'giveawaybeheer', description: 'Beheer giveaways en bekijk het trekkingbewijs.', scope: 'public', subcommands: [
-    { name: 'status', description: 'Bekijk een giveaway.', scope: 'public', options: [['string','id','Giveaway-ID',true]] },
-    { name: 'bewijs', description: 'Bekijk reproduceerbaar trekkingbewijs.', scope: 'public', options: [['string','id','Giveaway-ID',true]] },
-    { name: 'opnieuw', description: 'Start een nieuwe ronde met een nieuwe commitment.', scope: 'management', permission: 'ManageGuild', options: [['string','id','Giveaway-ID',true],['string','duur','Nieuwe duur',true]] },
+  { name: 'giveaway', description: 'Start, reroll of stop een giveaway.', scope: 'public', subcommands: [
+    { name: 'start', description: 'Start een nieuwe giveaway.', scope: 'management', permission: 'ManageGuild', options: [['string','prijs','Prijs of beloning',true,null,200],['string','duur','Bijvoorbeeld 30m, 2h of 7d',true],['int','winnaars','Aantal winnaars',true,1,20],['channel','kanaal','Publicatiekanaal',true],['string','voorwaarden','Optionele voorwaarden',false,null,1000]] },
+    { name: 'reroll', description: 'Trek een nieuwe winnaar uit dezelfde deelnemers.', scope: 'management', permission: 'ManageGuild', options: [['string','id','Giveaway-ID',true]] },
+    { name: 'stop', description: 'Beëindig een actieve giveaway direct.', scope: 'management', permission: 'ManageGuild', options: [['string','id','Giveaway-ID',true]] },
   ] },
   document('apv'), document('regels'),
   { name: 'evenement', description: 'Maak en beheer roleplay-evenementen.', scope: 'public', subcommands: [

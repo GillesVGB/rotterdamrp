@@ -76,7 +76,7 @@ test('een gewone moderator krijgt geen staff- of systeembeheer', async () => {
     noManagement(f);
     f.actor.roles.cache.set(IDs.mod, f.roles.get(IDs.mod));
     f.actor.permissions = new PermissionsBitField([P.ManageRoles, P.ManageMessages, P.BanMembers, P.ViewAuditLog]);
-    for (const key of ['aannemen', 'staffoverzicht', 'say', 'giveawaybeheer.opnieuw', 'systeem.status']) {
+    for (const key of ['aannemen', 'staffoverzicht', 'say', 'giveaway.reroll', 'giveaway.stop', 'systeem.status']) {
       const [root, sub] = key.split('.');
       await assert.rejects(authorize(f.interaction(root, {}, sub), f.ctx, routePolicy(key), key), /Beheer|Administrator/);
     }

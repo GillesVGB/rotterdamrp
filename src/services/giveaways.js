@@ -1,5 +1,5 @@
 import { createHash, randomBytes, randomUUID } from 'node:crypto';
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, AttachmentBuilder } from 'discord.js';
+import { ActionRowBuilder, ButtonBuilder, ButtonStyle } from 'discord.js';
 import { UserError, duration, text } from '../utils/validation.js';
 import { payload } from '../utils/embeds.js';
 import { writable } from '../security/permissions.js';
@@ -17,7 +17,8 @@ export class GiveawayService {
   }
   async execute(i,actor,c) {
     const { store,logger } = this.ctx;
-    if (i.commandName === 'giveaway') {
+    const sub = i.options.getSubcommand();
+    if (sub === 'start') {
       const channel = await writable(i.guild,i.options.getChannel('kanaal').id);
       const key = randomUUID(), seed = randomBytes(32).toString('hex'), end = Date.now()+duration(i.options.getString('duur'));
       const g = {id:key,guild_id:i.guildId,channel_id:channel.id,actor:i.user.id,prize:text(i.options.getString('prijs'),200),conditions:text(i.options.getString('voorwaarden') || '',1000,0),winner_count:i.options.getInteger('winnaars'),ends_at:end,state:'active',seed,commitment:commitment(seed),round:1};
@@ -30,32 +31,26 @@ export class GiveawayService {
     }
     const g = store.get('SELECT * FROM giveaways WHERE id=? AND guild_id=?',i.options.getString('id'),i.guildId);
     if (!g) throw new UserError('Giveaway niet gevonden.');
-    const sub = i.options.getSubcommand();
-    if (sub === 'status') return i.editReply(this.data(i.guild,c,g));
-    if (sub === 'bewijs') {
-      const rounds = store.all('SELECT * FROM giveaway_draws WHERE giveaway_id=? ORDER BY round',g.id).map(r=>({...r,entrants:JSON.parse(r.entrants),winners:JSON.parse(r.winners),excluded:JSON.parse(r.excluded)}));
-      if (!rounds.length) throw new UserError('Er is nog geen afgeronde trekking; de seed blijft geheim tot afsluiting.');
-      const proof = {algorithm:'SHA256(seed + ":" + DiscordUserId); sort ascending hex; first winner_count; empty if insufficient',giveaway:g.id,winner_count:g.winner_count,rounds};
-      return i.editReply({ ...payload(i.guild,c,'Trekkingbewijs',`Alle afgeronde rondes, seeds, commitments en geldige deelnemerlijsten staan in de bijlage.`),files:[new AttachmentBuilder(Buffer.from(JSON.stringify(proof,null,2)),{name:`giveaway-${g.id}.json`})] });
-    }
-    if (sub === 'eindigen') {
+    if (sub === 'stop') {
       if (!['active','closing'].includes(g.state)) throw new UserError('Deze giveaway is al afgesloten.');
       store.run("UPDATE giveaways SET ends_at=? WHERE id=?",Date.now(),g.id);
       await this.finish(g.id);
-    } else {
+    } else if (sub === 'reroll') {
       if (g.state !== 'ended') throw new UserError('Sluit eerst de huidige ronde af.');
-      const seed = randomBytes(32).toString('hex'), end = Date.now()+(sub === 'reroll' ? 30000 : duration(i.options.getString('duur')));
+      const seed = randomBytes(32).toString('hex'), end = Date.now()+30000;
       await writable(i.guild,g.channel_id);
       store.transaction(() => {
-        store.run("UPDATE giveaways SET state='active',seed=?,commitment=?,round=round+1,ends_at=?,mode=?,commitment_published=0 WHERE id=?",seed,commitment(seed),end,sub === 'reroll' ? 'reroll' : 'normal',g.id);
-        if (sub === 'opnieuw') store.run('DELETE FROM giveaway_entries WHERE giveaway_id=?',g.id);
+        store.run("UPDATE giveaways SET state='active',seed=?,commitment=?,round=round+1,ends_at=?,mode='reroll',commitment_published=0 WHERE id=?",seed,commitment(seed),end,g.id);
         const updated = store.get('SELECT * FROM giveaways WHERE id=?',g.id);
         store.queue(i.guildId,g.channel_id,this.data(i.guild,c,updated),`round:${g.id}:${updated.round}`);
       });
       await this.updateMessage(g.id);
-    }
+    } else throw new UserError('Gebruik /giveaway start, /giveaway reroll of /giveaway stop.');
     await logger.log(i.guild,'system',`Giveaway ${sub}`,{actor:i.user.id,reason:g.id});
-    return i.editReply(payload(i.guild,c,'Giveaway verwerkt',`ID: \`${g.id}\``));
+    const latest = store.get('SELECT state FROM giveaways WHERE id=?',g.id);
+    const title = sub === 'stop' && latest.state !== 'ended' ? 'Giveaway stoppen ingepland' : sub === 'stop' ? 'Giveaway beëindigd' : 'Giveaway reroll gestart';
+    const description = sub === 'stop' && latest.state !== 'ended' ? `ID: \`${g.id}\`\nDe trekking wordt afgerond zodra de giveawaypublicatie door Discord is bevestigd.` : `ID: \`${g.id}\``;
+    return i.editReply(payload(i.guild,c,title,description));
   }
   async join(i,key) {
     const g = this.ctx.store.get('SELECT * FROM giveaways WHERE id=? AND guild_id=?',key,i.guildId);
@@ -83,7 +78,7 @@ export class GiveawayService {
     store.transaction(() => {
       store.run('INSERT OR IGNORE INTO giveaway_draws VALUES (?,?,?,?,?,?,?,?)',key,g.round,g.seed,g.commitment,JSON.stringify(entrants),JSON.stringify(winners),JSON.stringify(excluded),Date.now());
       store.run("UPDATE giveaways SET state='ended' WHERE id=?",key);
-      store.queue(g.guild_id,g.channel_id,payload(guild,c,`Giveaway afgelopen • ${g.prize}`,`${winners.length ? `Winnaars: ${winners.map(x=>`<@${x}>`).join(', ')}` : `Geen winnaars: ${entrants.length} geldige deelnemers voor ${g.winner_count} prijzen.`}\nID: \`${key}\` • Ronde ${g.round}\nSeed: \`${g.seed}\`\nCommitment: \`${g.commitment}\`\nBekijk /giveawaybeheer bewijs voor de volledige snapshot.`),`draw:${key}:${g.round}`);
+      store.queue(g.guild_id,g.channel_id,payload(guild,c,`Giveaway afgelopen • ${g.prize}`,`${winners.length ? `Winnaars: ${winners.map(x=>`<@${x}>`).join(', ')}` : `Geen winnaars: ${entrants.length} geldige deelnemers voor ${g.winner_count} prijzen.`}\nID: \`${key}\` • Ronde ${g.round}\nSeed: \`${g.seed}\`\nCommitment: \`${g.commitment}\``),`draw:${key}:${g.round}`);
     });
     await this.updateMessage(key);
   }

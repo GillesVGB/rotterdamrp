@@ -1,6 +1,6 @@
 # Giveawaytrekking controleren
 
-Download de JSON-bijlage van `/giveawaybeheer bewijs`. Bewaar het originele commitmentbericht. Het bewijs bevat uitsluitend Discord-ID's van deelnemers en resultaten, geen FiveM-identifiers.
+De openbare slashcommands zijn `/giveaway start`, `/giveaway stop` en `/giveaway reroll`. Trekkingbewijzen worden in SQLite bewaard in `giveaway_draws`; deelnames staan in `giveaway_entries`. De eerdere openbare exportcommand is verwijderd. Bewaar het originele commitmentbericht als je een trekking controleert. Bewijsdata bevatten Discord-ID's, geen FiveM-identifiers.
 
 Voor iedere ronde controleer je:
 
@@ -10,7 +10,7 @@ Voor iedere ronde controleer je:
 4. Voor ieder ID bereken je SHA-256 van `seed + ':' + ID`, lexicografisch oplopend gesorteerd op de hexhash.
 5. Kies de eerste `winner_count` IDs. Bij te weinig deelnemers is de juiste uitkomst een lege lijst.
 
-Een zelfstandige verifier is meegeleverd:
+Een zelfstandige verifier is meegeleverd. Geef hem een JSON-export met `winner_count` en een `rounds`-array; iedere ronde bevat `round`, `seed`, `commitment`, `entrants`, `winners` en `excluded`:
 
 ```powershell
 node scripts/verify-giveaway.js .\giveaway-bewijs.json

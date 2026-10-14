@@ -10,7 +10,7 @@ const staffNames=new Set(staffCommands.map(x=>x.name)), modNames=new Set(moderat
 export function serviceFor(name) {
   if(name==='help') return 'help';
   if(staffNames.has(name)) return 'staff'; if(modNames.has(name)) return 'moderation';
-  if(name==='giveawaybeheer') return 'giveaways';
+  if(name==='giveaway') return 'giveaways';
   if(['apv','regels'].includes(name)) return 'documents';
   if(name==='evenement') return 'events'; if(name==='fivem') return 'fivem';
   if(['say','embed','changelog'].includes(name)) return 'communication'; if(name==='systeem') return 'system';
@@ -46,7 +46,7 @@ export async function interaction(ctx,i) {
       const auth=await authorize(i,ctx,policy(i.commandName,sub),key);
       if(policy(i.commandName,sub).scope!=='public' && ctx.store.hit(i.guildId,i.user.id,`command:${key}`,10000)>3) throw new UserError('Dit gevoelige command is tijdelijk begrensd. Wacht 10 seconden.');
       const service=serviceFor(i.commandName),target=i.options.getUser('gebruiker')?.id || i.options.getString('gebruiker_id');
-      const resource=service==='events' ? 'events:tick' : service==='giveaways' && i.commandName==='giveawaybeheer' ? `draw:${i.options.getString('id')}` : target ? `member:${target}` : `channel:${i.channelId}`;
+      const resource=service==='events' ? 'events:tick' : service==='giveaways' && ['reroll','stop'].includes(sub) ? `draw:${i.options.getString('id')}` : service==='giveaways' ? `channel:${i.options.getChannel('kanaal')?.id || i.channelId}` : target ? `member:${target}` : `channel:${i.channelId}`;
       await ctx.mutex.run(resource,async()=>{
         const current=policy(i.commandName,sub).scope==='public' ? auth : await authorize(i,ctx,policy(i.commandName,sub),key);
         return service==='system' ? system(ctx,i,current.member,current.c) : ctx[service].execute(i,current.member,current.c);

@@ -31,7 +31,8 @@ test('help bevat iedere geregistreerde commandroute precies één keer', () => {
     assert.deepEqual(entries.map(entry => entry.key).sort(), commandKeys().sort());
     assert.equal(new Set(entries.map(entry => entry.key)).size, entries.length);
     assert.equal(entries.length, 47);
-    assert.ok(!entries.some(entry => ['giveaway','staffstats','staffstatus','giveawaybeheer.aanmaken','giveawaybeheer.sluiten','giveawaybeheer.reroll'].includes(entry.key)));
+    assert.deepEqual(entries.filter(entry => entry.key.startsWith('giveaway.')).map(entry => entry.key).sort(), ['giveaway.reroll','giveaway.start','giveaway.stop']);
+    assert.ok(!entries.some(entry => entry.key.startsWith('giveawaybeheer.')));
     assert.ok(entries.every(entry => !['setup', 'antinuke'].includes(entry.name)));
     const output = helpPages(f.c).join('\n');
     for (const entry of entries) assert.equal(output.split(`**${entry.command}**`).length - 1, 1, entry.key);

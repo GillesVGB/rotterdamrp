@@ -32,8 +32,10 @@ De offline tests controleren echte SQLite-opslag en gesimuleerde Discord-grenzen
 | `/changelog` met versie | Optionele versie getoond zonder extra verplichte parameters |
 | Giveaway deelnemen | Unieke entry, dubbelklik levert geen dubbele deelname |
 | Giveaway onvoldoende deelnemers | Nul winnaars, geen verzonnen winnaar |
-| Giveaway herstart | Nieuwe ronde van een bestaande giveaway; eerdere bewijzen blijven staan; automatische eindtijd blijft werken |
-| Giveawaybewijs | Verifier klopt tegen oorspronkelijke commitment en snapshot |
+| `/giveaway start` | Nieuwe giveaway met deelnameknop, duur en herstartbestendige opslag |
+| `/giveaway stop` | Actieve giveaway wordt direct afgesloten en de echte deelnemers worden opnieuw gevalideerd |
+| `/giveaway reroll` | Nieuwe trekking van dezelfde deelnemerslijst; eerdere winnaars worden uitgesloten |
+| Giveaway na herstart | Actieve eindtijd, deelname en trekking worden hervat zonder dubbele aankondiging |
 | APV publiceren/accepteren | Publicatie in `1226509286587498599`; versie en acceptatieknop correct |
 | Regels publiceren/accepteren | Publicatie in `1226509286587498597`; versie en acceptatieknop correct |
 | Regels publiceren/accepteren | Versienummer en juiste document-ID; nieuwe versie wist oude acceptatie niet |
