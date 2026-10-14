@@ -7,7 +7,7 @@ import { serviceFor } from '../src/handlers/interactions.js';
 import { Store } from '../src/database/store.js';
 import { loadDefaults } from '../src/config.js';
 const files=dir=>readdirSync(dir,{withFileTypes:true}).flatMap(e=>e.isDirectory()?files(join(dir,e.name)):e.name.endsWith('.js')?[join(dir,e.name)]:[]);
-const js=['src','scripts','tests'].flatMap(files);
+const js=['index.js','register.js',...['src','scripts','tests'].flatMap(files)];
 for(const file of js) {
   const result=spawnSync(process.execPath,['--check',file],{encoding:'utf8'});
   if(result.status!==0) throw new Error(`${file}: ${result.stderr}`);

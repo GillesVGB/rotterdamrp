@@ -6,6 +6,8 @@ Volledig JavaScript-project voor één Discord-server, met 33 slash commands en 
 
 De bronbestanden, tests, lockfile, migraties en blauwe huisstijlassets zijn inbegrepen. Er staat geen Discord-token in de oplevering. Dit project is lokaal gecontroleerd; live Discord-/FiveM-acceptatie is nog niet uitgevoerd. Zie [testresultaten](docs/TESTRESULTATEN.md) en [architectuur](docs/ARCHITECTUUR.md).
 
+Voor jouw gekozen hosting staat een aparte [bot-hosting.net-handleiding](docs/BOT-HOSTING.md) klaar. Gebruik daar entry file `index.js` en Node 24.12 of hoger binnen 24.x. De bot ondersteunt zowel panel-environmentvariabelen als een lokale `.env`; er hoeft geen token in GitHub te staan.
+
 ## Snel installeren voor jouw server
 
 Installeer Node.js **24 LTS, minimaal 24.12**; getest met 24.14.0. Pak het archief uit op een machine die continu draait. Gebruik een blijvende lokale schijf voor `data/` en één botproces. Gebruik geen serverless function, gedeelde netwerkschijf of meerdere instanties op dezelfde SQLite-database.
