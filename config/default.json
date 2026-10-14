@@ -1,0 +1,30 @@
+{
+  "brand": { "name": "Rotterdam Roleplay", "color": "#1675FF", "errorColor": "#D64045", "logoEmojiId": null, "upvoteEmojiId": null, "downvoteEmojiId": null },
+  "roles": { "management": [], "moderator": [], "support": [], "protected": [], "ranks": [] },
+  "channels": { "hiring": "1560050091245699245", "dismissal": "1560050091245699245", "staffUpdates": "1560050091245699245", "changelog": null, "giveaway": null, "events": null, "rules": null, "fivem": null, "staffWarnings": null, "moderation": null, "staff": null, "security": null, "messages": null, "roles": null, "channelChanges": null, "members": null, "system": null },
+  "staff": { "dm": true, "removeRolesOnDismissal": true },
+  "moderation": { "dm": true, "temporaryBans": true },
+  "logging": { "messageContent": false, "retentionDays": 90 },
+  "fivem": { "showPlayers": false, "pollSeconds": 60 },
+  "permissions": {},
+  "security": {
+    "action": "strip",
+    "allowUsers": [], "allowBots": [],
+    "rules": {
+      "channelCreate": { "limit": 5, "windowSeconds": 15 },
+      "channelDelete": { "limit": 3, "windowSeconds": 15 },
+      "channelUpdate": { "limit": 5, "windowSeconds": 15 },
+      "roleCreate": { "limit": 5, "windowSeconds": 15 },
+      "roleDelete": { "limit": 3, "windowSeconds": 15 },
+      "roleUpdate": { "limit": 3, "windowSeconds": 15 },
+      "webhook": { "limit": 3, "windowSeconds": 15 },
+      "ban": { "limit": 4, "windowSeconds": 15 },
+      "kick": { "limit": 4, "windowSeconds": 15 },
+      "guildUpdate": { "limit": 2, "windowSeconds": 30 }
+    },
+    "spam": { "limit": 7, "windowSeconds": 8, "timeoutSeconds": 300 },
+    "mentions": { "limit": 6, "timeoutSeconds": 600 },
+    "raid": { "limit": 8, "windowSeconds": 15, "timeoutSeconds": 600 },
+    "webhookMessages": { "limit": 8, "windowSeconds": 10 }
+  }
+}

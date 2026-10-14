@@ -1,0 +1,11 @@
+# Huisstijlassets
+
+Gegenereerd met de ingebouwde image_gen-tool. De twee door de gebruiker aangeleverde afbeeldingen zijn gebruikt als stijlreferentie. Bestanden: rlrp-logo.png en rlrp-banner.png. Kleuren: hoofdkleur #1675FF, cyaanaccent #00D5FF, donkere achtergrond #030E35, witte lettering.
+
+## Logo-prompt
+
+Use case: logo-brand. Asset: square Discord server icon for Rotterdam Roleplay. Create a polished new logo inspired closely by the provided reference images, which are style references. Electric cobalt blue and cyan, dark navy night skyline of Rotterdam and waterfront reflections, dramatic clouds, large central angular white metallic 3D R monogram with blue bevels. Beneath it perfectly legible exact text "ROTTERDAM" in bold white beveled esports lettering and "ROLEPLAY" in energetic cyan brush lettering. Preserve the visual identity and blue gaming atmosphere of the references. Crisp high-resolution edges and clean typography, improved readability, no dotted raster pattern, no watermark, no extra slogan. Square 1024x1024 composition with all important logo elements inside a centered circular safe area and sufficient breathing room. Background opaque dark navy.
+
+## Banner-prompt
+
+Use case: ads-marketing. Asset: wide 16:9 Discord server banner for Rotterdam Roleplay, 1920x1080 composition. Generate a matching banner to the provided new square logo, which is the primary brand reference. The other wide image is a composition and style reference. Preserve the same exact angular white metallic beveled R monogram, bold white 3D "ROTTERDAM" typography and cyan brush "ROLEPLAY" lettering. The logo group sits centered occupying the middle 50 percent of width with generous breathing room; no text near the edges. Expansive Rotterdam night skyline across the frame, Euromast tower on left, Erasmus bridge on right, blue-lit waterfront and clear reflections along lower third, dramatic electric-blue clouds against deep navy sky. Electric cobalt blue and cyan glow, professional premium gaming identity, cinematic clean high-resolution sharp image. Exact text: "ROTTERDAM" and "ROLEPLAY" only. No watermark, no additional slogan, no dotted raster texture. A wide landscape composition with all branding fully legible in a 16:9 crop.

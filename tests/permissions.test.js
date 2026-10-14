@@ -1,0 +1,17 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import { PermissionsBitField,PermissionFlagsBits as P } from 'discord.js';
+import { authorize,hierarchy,grantable,writable } from '../src/security/permissions.js';
+import { policy } from '../src/commands/registry.js';
+import { fixture,IDs } from './fixture.js';
+test('command vereist zowel staffrol als Discord-recht',async()=>{const f=fixture();try{await authorize(f.interaction('ban'),f.ctx,policy('ban'),'ban');f.actor.permissions=new PermissionsBitField([]);await assert.rejects(authorize(f.interaction('ban'),f.ctx,policy('ban'),'ban'),/Discord-permissie/);}finally{f.store.close();}});
+test('Administrator zonder ingestelde staffrol geeft geen staffcommandtoegang',async()=>{const f=fixture();try{f.actor.roles.cache.delete(IDs.manage);await assert.rejects(authorize(f.interaction('ban'),f.ctx,policy('ban'),'ban'),/geconfigureerde rol/);}finally{f.store.close();}});
+test('owner-only sluit gewone managementaccounts uit',async()=>{const f=fixture();try{await assert.rejects(authorize(f.interaction('setup'),f.ctx,policy('setup'),'setup'),/configuratiebeheerders/);}finally{f.store.close();}});
+test('expliciete ownerrol beheert setup ook zonder Administrator',async()=>{const f=fixture();try{f.ctx.env.ownerRoles=[IDs.manage];f.actor.permissions=new PermissionsBitField([]);await authorize(f.interaction('setup'),f.ctx,policy('setup'),'setup');}finally{f.store.close();}});
+test('verlies van ownerrol trekt setuprechten onmiddellijk in',async()=>{const f=fixture();try{f.ctx.env.ownerRoles=[IDs.manage];f.actor.roles.cache.delete(IDs.manage);await assert.rejects(authorize(f.interaction('setup'),f.ctx,policy('setup'),'setup'));}finally{f.store.close();}});
+test('gebruiker op security-allowlist krijgt geen commandrechten',async()=>{const f=fixture();try{const next=structuredClone(f.c);next.security.allowUsers=[IDs.target];f.store.saveConfig(IDs.guild,next,1);await assert.rejects(authorize(f.interaction('ban',{},null,IDs.target),f.ctx,policy('ban'),'ban'),/geconfigureerde rol/);}finally{f.store.close();}});
+test('guildgrens wordt server-side afgedwongen',async()=>{const f=fixture();try{const i=f.interaction('ban');i.guildId='999999999999999999';await assert.rejects(authorize(i,f.ctx,policy('ban'),'ban'),/ingestelde server/);}finally{f.store.close();}});
+for(const [name,setup] of [['zelf',f=>f.target=f.actor],['guildeigenaar',f=>f.target=f.owner],['bot',f=>f.target=f.bot],['beschermde rol',f=>f.target.roles.cache.set(IDs.protect,f.roles.get(IDs.protect))],['gelijke rank',f=>f.target.roles.highest=f.actor.roles.highest],['boven bot',f=>f.target.roles.highest=f.role('123456789012345690',100)]]) test(`rolhiërarchie blokkeert ${name}`,()=>{const f=fixture();try{setup(f);assert.throws(()=>hierarchy(f.actor,f.target,f.bot,f.c));}finally{f.store.close();}});
+test('toewijzen boven de hoogste botrol is onmogelijk',()=>{const f=fixture();try{assert.throws(()=>grantable(f.actor,f.role('123456789012345690',100),f.bot));}finally{f.store.close();}});
+test('staffwaarschuwingen mogen niet naar een publiek kanaal',async()=>{const f=fixture();try{await assert.rejects(writable(f.guild,IDs.channel,{privateStaff:true,c:f.c}),/everyone/);}finally{f.store.close();}});
+test('ownerrollen beschermen tegen moderatie ook onder een hogere actorrol',()=>{const f=fixture();try{assert.throws(()=>hierarchy(f.actor,f.target,f.bot,f.c,{ownerRoles:[IDs.support]}),/beschermd/);}finally{f.store.close();}});

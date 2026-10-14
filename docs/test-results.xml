@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+	<testcase name="migraties zijn herhaalbaar en data overleeft een gesloten verbinding" time="0.117375" classname="test" file="tests/database.test.js"/>
+	<testcase name="transacties draaien terug bij fouten" time="0.008322" classname="test" file="tests/database.test.js"/>
+	<testcase name="SQL-parameters behandelen injectietekst als data" time="0.012566" classname="test" file="tests/database.test.js"/>
+	<testcase name="configuratie-updates hebben compare-and-swap versiecontrole" time="0.016963" classname="test" file="tests/database.test.js"/>
+	<testcase name="security sliding window is persistent en telt uitsluitend het venster" time="0.014773" classname="test" file="tests/database.test.js"/>
+	<testcase name="audit-entry deduplicatie" time="0.018624" classname="test" file="tests/database.test.js"/>
+	<testcase name="outbox referenties zijn idempotent" time="0.020229" classname="test" file="tests/database.test.js"/>
+	<testcase name="SQLite online backup herstelt configuratie, data en migraties" time="0.129520" classname="test" file="tests/database.test.js"/>
+	<testcase name="trekking is reproduceerbaar en onafhankelijk van inputvolgorde" time="0.085335" classname="test" file="tests/giveaways.test.js"/>
+	<testcase name="onvoldoende geldige deelnemers betekent nul winnaars" time="0.000520" classname="test" file="tests/giveaways.test.js"/>
+	<testcase name="dubbele deelnemers worden geweigerd bij bewijsberekening" time="0.000732" classname="test" file="tests/giveaways.test.js"/>
+	<testcase name="giveaway-deelname is persistent en uniek" time="0.050626" classname="test" file="tests/giveaways.test.js"/>
+	<testcase name="deelname na deadline wordt afgewezen" time="0.033062" classname="test" file="tests/giveaways.test.js"/>
+	<testcase name="afsluiten gebruikt opnieuw gevalideerde leden en publiceert een bewijs" time="0.024294" classname="test" file="tests/giveaways.test.js"/>
+	<testcase name="vertrokken leden en bots winnen niet" time="0.028419" classname="test" file="tests/giveaways.test.js"/>
+	<testcase name="API-fout tijdens deelnemersvalidatie verwijdert een geldige deelnemer niet" time="0.048919" classname="test" file="tests/giveaways.test.js"/>
+	<testcase name="herhaald afsluiten heeft één trekking en één resultaatbericht" time="0.046939" classname="test" file="tests/giveaways.test.js"/>
+	<testcase name="reroll sluit eerdere winnaars uit en geeft een nieuwe commitment" time="0.031491" classname="test" file="tests/giveaways.test.js"/>
+	<testcase name="een trekking wacht totdat de commitment echt op Discord is verzonden" time="0.020727" classname="test" file="tests/giveaways.test.js"/>
+	<testcase name="centrale commandhandler controleert rechten vóór de banmutatie" time="0.043689" classname="test" file="tests/interactions.test.js"/>
+	<testcase name="volledige handlerflow voert echte service en persistente registratie uit" time="0.012548" classname="test" file="tests/interactions.test.js"/>
+	<testcase name="gevoelige command-rate-limit blijft server-side actief" time="0.025273" classname="test" file="tests/interactions.test.js"/>
+	<testcase name="setup is eigenaargebonden en kan niet met een custom-ID worden overgenomen" time="0.026782" classname="test" file="tests/interactions.test.js"/>
+	<testcase name="verlopen setupsessie wordt geweigerd" time="0.039006" classname="test" file="tests/interactions.test.js"/>
+	<testcase name="setupkanaalselectie slaat een echt kanaal op en verhoogt de versie" time="0.038218" classname="test" file="tests/interactions.test.js"/>
+	<testcase name="bestaande setupsessie verliest toegang als ownerrol wordt verwijderd" time="0.032747" classname="test" file="tests/interactions.test.js"/>
+	<testcase name="interne staffwaarschuwing blijft buiten openbare logs" time="0.029846" classname="test" file="tests/interactions.test.js"/>
+	<testcase name="validatie accepteert milliseconden en weigert onmogelijke kalenderdatums" time="0.004157" classname="test" file="tests/interactions.test.js"/>
+	<testcase name="outbox API-fout behoudt taak voor herstart/retry" time="0.015922" classname="test" file="tests/interactions.test.js"/>
+	<testcase name="ban voert Discord-ban uit en bewaart generatie-token en eindtijd" time="0.067516" classname="test" file="tests/moderation.test.js"/>
+	<testcase name="tijdelijke ban wordt automatisch opgeheven" time="0.016837" classname="test" file="tests/moderation.test.js"/>
+	<testcase name="permanente ban verloopt nooit via scheduler" time="0.011570" classname="test" file="tests/moderation.test.js"/>
+	<testcase name="banherstel heft een later door anderen ingestelde ban niet op" time="0.014650" classname="test" file="tests/moderation.test.js"/>
+	<testcase name="herstel bevestigt een vóór de crash uitgevoerde pending ban" time="0.047216" classname="test" file="tests/moderation.test.js"/>
+	<testcase name="mislukte mutatie wordt onzeker geregistreerd en niet als geslaagd" time="0.024995" classname="test" file="tests/moderation.test.js"/>
+	<testcase name="timeout boven 28 dagen wordt afgewezen voordat Discord wordt gewijzigd" time="0.012799" classname="test" file="tests/moderation.test.js"/>
+	<testcase name="waarschuwingen intrekken behoudt sanctiehistorie" time="0.023742" classname="test" file="tests/moderation.test.js"/>
+	<testcase name="lock/unlock herstelt true, false en null afzonderlijk" time="0.023375" classname="test" file="tests/moderation.test.js"/>
+	<testcase name="banherstel wacht op een nog lopende commandmutatie en deactiveert deze niet" time="0.038554" classname="test" file="tests/moderation.test.js"/>
+	<testcase name="alle commands en subcommands hebben een handler en geldige slash JSON" time="0.033867" classname="test" file="tests/modules.test.js"/>
+	<testcase name="duurvalidatie weigert 0m" time="0.000823" classname="test" file="tests/modules.test.js"/>
+	<testcase name="duurvalidatie weigert -1h" time="0.000320" classname="test" file="tests/modules.test.js"/>
+	<testcase name="duurvalidatie weigert 1x" time="0.000232" classname="test" file="tests/modules.test.js"/>
+	<testcase name="duurvalidatie weigert 999999999d" time="0.000278" classname="test" file="tests/modules.test.js"/>
+	<testcase name="duurvalidatie weigert 1h;rm" time="0.001508" classname="test" file="tests/modules.test.js"/>
+	<testcase name="duur, tijdzone, URL en massamentions worden gevalideerd" time="0.000918" classname="test" file="tests/modules.test.js"/>
+	<testcase name="configuratie kan security niet stilzwijgend uitschakelen" time="0.012921" classname="test" file="tests/modules.test.js"/>
+	<testcase name="ownerrol @everyone wordt geweigerd bij starten" time="0.002050" classname="test" file="tests/modules.test.js"/>
+	<testcase name="secrets en webhooktokens worden uit foutlogs verwijderd" time="0.001078" classname="test" file="tests/modules.test.js"/>
+	<testcase name="FiveM toont geen IP/license/identifiers uit players.json" time="0.050271" classname="test" file="tests/modules.test.js"/>
+	<testcase name="afgeschermde FiveM-endpoints leveren onbereikbaar, geen verzonnen status" time="0.013359" classname="test" file="tests/modules.test.js"/>
+	<testcase name="FiveM response-omvang is begrensd" time="0.005096" classname="test" file="tests/modules.test.js"/>
+	<testcase name="APV krijgt onveranderlijke versies en versiegebonden acceptaties" time="0.033749" classname="test" file="tests/modules.test.js"/>
+	<testcase name="acceptatie van niet gepubliceerde regels is onmogelijk" time="0.015680" classname="test" file="tests/modules.test.js"/>
+	<testcase name="evenement maakt een echt Scheduled Event en begrenst RSVP-capaciteit" time="0.021028" classname="test" file="tests/modules.test.js"/>
+	<testcase name="evenement begint en sluit na een herstart zonder timerstatus" time="0.032217" classname="test" file="tests/modules.test.js"/>
+	<testcase name="outbox verstuurt daadwerkelijk en retry zoekt een bestaand bericht" time="0.029458" classname="test" file="tests/modules.test.js"/>
+	<testcase name="logger bewaart alleen metadata wanneer geen berichtinhoud is verstrekt" time="0.009957" classname="test" file="tests/modules.test.js"/>
+	<testcase name="rlogo wordt via het echte serveremoji-ID gebruikt" time="0.013738" classname="test" file="tests/modules.test.js"/>
+	<testcase name="onbruikbare of ontbrekende rlogo geeft geen nep-emoji" time="0.017888" classname="test" file="tests/modules.test.js"/>
+	<testcase name="volledig gemist evenement wordt geannuleerd en niet fictief uitgevoerd" time="0.033640" classname="test" file="tests/modules.test.js"/>
+	<testcase name="rlogo ondersteunt echte applicatie-emoji en verversen verwijdert stale entries" time="0.011291" classname="test" file="tests/modules.test.js"/>
+	<testcase name="command vereist zowel staffrol als Discord-recht" time="0.021563" classname="test" file="tests/permissions.test.js"/>
+	<testcase name="Administrator zonder ingestelde staffrol geeft geen staffcommandtoegang" time="0.016535" classname="test" file="tests/permissions.test.js"/>
+	<testcase name="owner-only sluit gewone managementaccounts uit" time="0.013079" classname="test" file="tests/permissions.test.js"/>
+	<testcase name="expliciete ownerrol beheert setup ook zonder Administrator" time="0.018669" classname="test" file="tests/permissions.test.js"/>
+	<testcase name="verlies van ownerrol trekt setuprechten onmiddellijk in" time="0.016811" classname="test" file="tests/permissions.test.js"/>
+	<testcase name="gebruiker op security-allowlist krijgt geen commandrechten" time="0.027497" classname="test" file="tests/permissions.test.js"/>
+	<testcase name="guildgrens wordt server-side afgedwongen" time="0.013632" classname="test" file="tests/permissions.test.js"/>
+	<testcase name="rolhiërarchie blokkeert zelf" time="0.016739" classname="test" file="tests/permissions.test.js"/>
+	<testcase name="rolhiërarchie blokkeert guildeigenaar" time="0.022977" classname="test" file="tests/permissions.test.js"/>
+	<testcase name="rolhiërarchie blokkeert bot" time="0.023637" classname="test" file="tests/permissions.test.js"/>
+	<testcase name="rolhiërarchie blokkeert beschermde rol" time="0.011934" classname="test" file="tests/permissions.test.js"/>
+	<testcase name="rolhiërarchie blokkeert gelijke rank" time="0.013257" classname="test" file="tests/permissions.test.js"/>
+	<testcase name="rolhiërarchie blokkeert boven bot" time="0.028471" classname="test" file="tests/permissions.test.js"/>
+	<testcase name="toewijzen boven de hoogste botrol is onmogelijk" time="0.022220" classname="test" file="tests/permissions.test.js"/>
+	<testcase name="staffwaarschuwingen mogen niet naar een publiek kanaal" time="0.036842" classname="test" file="tests/permissions.test.js"/>
+	<testcase name="ownerrollen beschermen tegen moderatie ook onder een hogere actorrol" time="0.009828" classname="test" file="tests/permissions.test.js"/>
+	<testcase name="drempel verwijdert alleen gevaarlijke beheersbare rollen" time="0.062108" classname="test" file="tests/security.test.js"/>
+	<testcase name="duplicate audit-entry telt niet dubbel" time="0.012881" classname="test" file="tests/security.test.js"/>
+	<testcase name="oude auditlogs kunnen geen nieuwe automatische sanctie triggeren" time="0.016248" classname="test" file="tests/security.test.js"/>
+	<testcase name="allowlisted actor krijgt alleen een melding" time="0.028193" classname="test" file="tests/security.test.js"/>
+	<testcase name="ownerrol is expliciete trustroot" time="0.042319" classname="test" file="tests/security.test.js"/>
+	<testcase name="ontbrekende attributie levert geen accountbestraffing op" time="0.011447" classname="test" file="tests/security.test.js"/>
+	<testcase name="ontbrekende botrechten worden als incident vastgelegd" time="0.015660" classname="test" file="tests/security.test.js"/>
+	<testcase name="anti-nuke test simuleert zonder mutaties of productiehits" time="0.016247" classname="test" file="tests/security.test.js"/>
+	<testcase name="anti-spam verwijdert bericht en geeft echte timeout bij drempel" time="0.029670" classname="test" file="tests/security.test.js"/>
+	<testcase name="massamentions triggeren ook vóór de spamdrempel" time="0.015968" classname="test" file="tests/security.test.js"/>
+	<testcase name="niet-toegestane bot wordt werkelijk gekickt" time="0.010080" classname="test" file="tests/security.test.js"/>
+	<testcase name="toegestane bot wordt niet gekickt" time="0.025098" classname="test" file="tests/security.test.js"/>
+	<testcase name="anti-raid beperkt recente joins bij persistent geregistreerde burst" time="0.024647" classname="test" file="tests/security.test.js"/>
+	<testcase name="webhookburst behandelt untrusted eigenaar veilig" time="0.025432" classname="test" file="tests/security.test.js"/>
+	<testcase name="webhookburst behandelt ownerRole eigenaar veilig" time="0.021053" classname="test" file="tests/security.test.js"/>
+	<testcase name="webhookburst behandelt unknown eigenaar veilig" time="0.012779" classname="test" file="tests/security.test.js"/>
+	<testcase name="aannemen kent echte rol toe, slaat historie op en publiceert" time="0.026882" classname="test" file="tests/staff.test.js"/>
+	<testcase name="niet ingestelde rank verandert geen rollen" time="0.008143" classname="test" file="tests/staff.test.js"/>
+	<testcase name="rank-up verandert roles en legt oude en nieuwe rank vast" time="0.011291" classname="test" file="tests/staff.test.js"/>
+	<testcase name="rank-down naar hogere rank is verboden" time="0.010162" classname="test" file="tests/staff.test.js"/>
+	<testcase name="ontslag verwijdert geconfigureerde staffrollen" time="0.009511" classname="test" file="tests/staff.test.js"/>
+	<testcase name="ontslag met rol_verwijderen=false laat de rol staan" time="0.010491" classname="test" file="tests/staff.test.js"/>
+	<testcase name="applicatie-upvote bij aannemen/promotie en downvote bij demotie/ontslag" time="0.014630" classname="test" file="tests/staff.test.js"/>
+	<!-- tests 101 -->
+	<!-- suites 0 -->
+	<!-- pass 101 -->
+	<!-- fail 0 -->
+	<!-- cancelled 0 -->
+	<!-- skipped 0 -->
+	<!-- todo 0 -->
+	<!-- duration_ms 5124.3502 -->
+</testsuites>

@@ -1,0 +1,22 @@
+[Unit]
+Description=Rotterdam Roleplay Main Discord Bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=rlrp
+WorkingDirectory=/opt/rlrp-main-bot
+ExecStart=/usr/bin/node --env-file=/opt/rlrp-main-bot/.env /opt/rlrp-main-bot/src/index.js
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=20
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/rlrp-main-bot/data /opt/rlrp-main-bot/backups
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target
